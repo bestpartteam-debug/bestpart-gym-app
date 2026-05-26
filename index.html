@@ -1895,11 +1895,11 @@ function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomer
 const MAIN=['dashboard','jobs','quotes','calendar','customers','tax'];
 const NAV_ITEMS=[
   {id:'dashboard',lb:'HOME',   renderIcon:()=><span style={{fontSize:20}}>🏠</span>},
-  {id:'jobs',     lb:'QUEST',  renderIcon:()=><img src="https://img.pokemondb.net/sprites/sword-shield/icon/squirtle.png" style={{width:32,height:24,imageRendering:'pixelated'}} alt="Quest"/>},
-  {id:'calendar', lb:'MAP',    renderIcon:()=><span style={{fontSize:20}}>📅</span>},
-  {id:'customers',lb:'TRAINER',renderIcon:()=><img src="https://img.pokemondb.net/sprites/sword-shield/icon/pikachu.png" style={{width:32,height:24,imageRendering:'pixelated'}} alt="Trainer"/>},
-  {id:'quotes',   lb:'SHOP',   renderIcon:()=><span style={{fontSize:20}}>📜</span>},
-  {id:'tax',      lb:'GUILD',  renderIcon:()=><span style={{fontSize:20}}>📊</span>},
+  {id:'jobs',     lb:'QUEST',  renderIcon:()=><span style={{fontSize:20}}>⚔️</span>},
+  {id:'calendar', lb:'MAP',    renderIcon:()=><span style={{fontSize:20}}>🗺️</span>},
+  {id:'customers',lb:'TRAINER',renderIcon:()=><span style={{fontSize:20}}>👤</span>},
+  {id:'quotes',   lb:'SHOP',   renderIcon:()=><span style={{fontSize:20}}>🛍️</span>},
+  {id:'tax',      lb:'GUILD',  renderIcon:()=><span style={{fontSize:20}}>🏛️</span>},
 ];
 function BottomNav({screen,onNav}){
   if(!MAIN.includes(screen))return null;
