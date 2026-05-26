@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<!-- ══ PWA / iPhone ══ -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="BESTPART GYM">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1c2c">
+<!-- Pokeball icon for iPhone home screen -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23CC0000'/%3E%3Cpath d='M0 100 A100 100 0 0 1 200 100' fill='%23F8F8F8'/%3E%3Crect x='0' y='88' width='200' height='24' fill='%23181018'/%3E%3Ccircle cx='100' cy='100' r='24' fill='%23F8F8F8' stroke='%23181018' stroke-width='8'/%3E%3Ccircle cx='100' cy='100' r='12' fill='%23F8F8F8'/%3E%3C/svg%3E">
+
+<!-- ══ Fonts ══ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<!-- ══ Scripts ══ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- ══ Firebase ══ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<title>BESTPART GYM</title>
+
+<style>
+/* ══════════════════════════════════════════
+   POKEMON PIXEL ART THEME
+   ══════════════════════════════════════════ */
+@font-face { font-family: 'PS2P'; src: local('Press Start 2P'); }
+
+:root {
+  --bg:     #1a1c2c;
+  --bg2:    #252741;
+  --bg3:    #12131e;
+  --card:   #f0e8d0;
+  --card2:  #e0d0b0;
+  --card3:  #d8c8a0;
+  --border: #181018;
+  --red:    #CC0000;
+  --red2:   #FF3333;
+  --yellow: #FFD700;
+  --blue:   #3860D0;
+  --green:  #38A050;
+  --purple: #9038F8;
+  --orange: #F86030;
+  --white:  #F8F8F0;
+  --gray:   #888898;
+  --hp-green:#00C830;
+  --hp-yellow:#F8C800;
+  --hp-red: #E82020;
+  --gold:   #C8A020;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+html,body{
+  height:100%;background:var(--bg);
+  font-family:system-ui,-apple-system,sans-serif;
+  color:var(--white);
+  max-width:430px;
+  margin:0 auto;
+  overflow-x:hidden;
+}
+
+/* Starfield background */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 8% 12%,  rgba(255,255,255,.9) 100%,transparent),
+    radial-gradient(1px 1px at 22% 35%, rgba(255,255,255,.7) 100%,transparent),
+    radial-gradient(1px 1px at 38% 8%,  rgba(255,255,255,.8) 100%,transparent),
+    radial-gradient(1px 1px at 55% 52%, rgba(255,255,255,.6) 100%,transparent),
+    radial-gradient(1px 1px at 72% 18%, rgba(255,255,255,.9) 100%,transparent),
+    radial-gradient(1px 1px at 88% 40%, rgba(255,255,255,.7) 100%,transparent),
+    radial-gradient(1px 1px at 14% 68%, rgba(255,255,255,.8) 100%,transparent),
+    radial-gradient(1px 1px at 31% 82%, rgba(255,255,255,.5) 100%,transparent),
+    radial-gradient(1px 1px at 48% 75%, rgba(255,255,255,.9) 100%,transparent),
+    radial-gradient(1px 1px at 64% 88%, rgba(255,255,255,.6) 100%,transparent),
+    radial-gradient(1px 1px at 79% 62%, rgba(255,255,255,.8) 100%,transparent),
+    radial-gradient(1px 1px at 93% 78%, rgba(255,255,255,.7) 100%,transparent),
+    radial-gradient(2px 2px at 18% 25%, rgba(255,215,0,.8) 100%,transparent),
+    radial-gradient(2px 2px at 60% 30%, rgba(255,215,0,.6) 100%,transparent),
+    radial-gradient(2px 2px at 85% 15%, rgba(255,215,0,.8) 100%,transparent),
+    radial-gradient(1px 1px at 5%  90%, rgba(255,255,255,.6) 100%,transparent),
+    radial-gradient(1px 1px at 42% 95%, rgba(255,255,255,.8) 100%,transparent);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+.app{min-height:100vh;position:relative;z-index:1;padding-bottom:80px;}
+.screen{padding-bottom:16px;}
+
+/* ── PIXEL ART CARDS ─────────────────────── */
+.px-card{
+  background:var(--card);
+  border:3px solid var(--border);
+  box-shadow:4px 4px 0 var(--border);
+  border-radius:4px;
+  color:var(--border);
+  position:relative;
+}
+.px-card::before{
+  content:'';position:absolute;inset:2px;
+  border-top:2px solid rgba(255,255,255,.6);
+  border-left:2px solid rgba(255,255,255,.4);
+  border-radius:2px;
+  pointer-events:none;
+}
+.px-card-dark{
+  background:var(--bg2);
+  border:3px solid var(--border);
+  box-shadow:4px 4px 0 var(--border);
+  border-radius:4px;
+  color:var(--white);
+}
+
+/* ── PIXEL BUTTONS ───────────────────────── */
+.px-btn{
+  font-family:'Press Start 2P',monospace;
+  font-size:9px;
+  border:3px solid var(--border);
+  box-shadow:4px 4px 0 var(--border);
+  cursor:pointer;padding:12px 16px;
+  border-radius:4px;width:100%;
+  transition:transform .08s,box-shadow .08s;
+  line-height:1.8;letter-spacing:.5px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.px-btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--border);}
+.px-btn-red{background:var(--red);color:#fff;}
+.px-btn-red:hover{background:var(--red2);}
+.px-btn-yellow{background:var(--yellow);color:var(--border);}
+.px-btn-dark{background:var(--bg2);color:var(--white);}
+.px-btn-green{background:var(--green);color:#fff;}
+.px-btn-light{background:var(--card2);color:var(--border);}
+.px-btn-blue{background:var(--blue);color:#fff;}
+
+/* ── PIXEL INPUT ─────────────────────────── */
+input,select,textarea{
+  width:100%;padding:10px 12px;
+  border:3px solid var(--border);
+  border-radius:4px;font-size:13px;
+  outline:none;background:var(--white);
+  font-family:system-ui,sans-serif;
+  color:var(--border);
+  box-shadow:inset 2px 2px 0 rgba(0,0,0,.15);
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--blue);
+  box-shadow:inset 2px 2px 0 rgba(0,0,100,.1);
+}
+.field-label{
+  font-family:'Press Start 2P',monospace;
+  font-size:7px;color:var(--gray);
+  display:block;margin-bottom:4px;margin-top:10px;
+  letter-spacing:.5px;
+}
+
+/* ── HP BAR ──────────────────────────────── */
+.hp-bar-outer{
+  background:#282828;border:2px solid var(--border);
+  height:12px;border-radius:2px;overflow:hidden;
+  position:relative;
+}
+.hp-bar-inner{height:100%;border-radius:1px;transition:width .5s;}
+.hp-bar-inner.high{background:var(--hp-green);}
+.hp-bar-inner.mid{background:var(--hp-yellow);}
+.hp-bar-inner.low{background:var(--hp-red);animation:hp-blink 1s infinite;}
+@keyframes hp-blink{0%,100%{opacity:1;}50%{opacity:.5};}
+.hp-label{
+  font-family:'Press Start 2P',monospace;font-size:6px;
+  color:var(--border);margin-bottom:3px;letter-spacing:.5px;
+}
+
+/* ── TYPE BADGES ─────────────────────────── */
+.type-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:3px;
+  font-family:'Press Start 2P',monospace;font-size:7px;
+  border:2px solid rgba(0,0,0,.3);letter-spacing:.3px;
+  text-transform:uppercase;
+}
+
+/* ── TOP BAR ─────────────────────────────── */
+.top-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 16px 6px;
+  border-bottom:2px solid rgba(255,255,255,.05);
+}
+.top-bar-title{
+  flex:1;font-family:'Press Start 2P',monospace;
+  font-size:10px;color:var(--yellow);
+  text-shadow:2px 2px 0 var(--border);
+  letter-spacing:.5px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.icon-btn{
+  background:var(--bg2);border:2px solid rgba(255,255,255,.1);
+  color:var(--white);font-size:18px;cursor:pointer;
+  width:34px;height:34px;display:flex;align-items:center;
+  justify-content:center;border-radius:4px;flex-shrink:0;
+}
+.fab{
+  background:var(--red);border:3px solid var(--border);
+  box-shadow:3px 3px 0 var(--border);color:#fff;
+  width:34px;height:34px;border-radius:4px;font-size:18px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-family:'Press Start 2P',monospace;flex-shrink:0;
+  transition:transform .08s,box-shadow .08s;
+}
+.fab:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--border);}
+
+/* ── BOTTOM NAV ──────────────────────────── */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:430px;
+  background:var(--bg3);
+  border-top:3px solid var(--border);
+  display:flex;justify-content:space-around;
+  padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+  z-index:100;
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;
+  gap:3px;cursor:pointer;padding:4px 6px;
+  color:var(--gray);
+  font-family:'Press Start 2P',monospace;font-size:6px;
+  letter-spacing:.3px;transition:color .15s;
+  min-width:48px;
+}
+.nav-item.active{color:var(--yellow);}
+.nav-item.active .nav-icon{filter:drop-shadow(0 0 4px var(--yellow));}
+.nav-icon{font-size:18px;line-height:1;}
+
+/* ── DIALOG BOX ──────────────────────────── */
+.dialog-box{
+  background:var(--card);border:4px solid var(--border);
+  box-shadow:5px 5px 0 var(--border);border-radius:4px;
+  padding:14px;color:var(--border);
+  font-size:12px;line-height:1.6;
+  position:relative;
+}
+.dialog-box::after{
+  content:'▼';position:absolute;bottom:8px;right:12px;
+  font-size:8px;color:var(--border);animation:blink .8s infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0};}
+
+/* ── JOB CARD ────────────────────────────── */
+.job-card{
+  background:var(--card);border:3px solid var(--border);
+  box-shadow:4px 4px 0 var(--border);border-radius:4px;
+  padding:12px;margin-bottom:12px;cursor:pointer;
+  transition:transform .08s,box-shadow .08s;
+  color:var(--border);
+}
+.job-card:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--border);}
+
+/* ── MODAL SHEET ─────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:200;display:flex;align-items:flex-end;
+  max-width:430px;left:50%;transform:translateX(-50%);
+}
+.modal-sheet{
+  background:var(--card);border:3px solid var(--border);
+  border-bottom:none;border-radius:8px 8px 0 0;
+  padding:20px 16px calc(24px + env(safe-area-inset-bottom));
+  width:100%;max-height:88vh;overflow-y:auto;color:var(--border);
+}
+.modal-title{
+  font-family:'Press Start 2P',monospace;font-size:10px;
+  color:var(--border);margin-bottom:16px;
+  text-align:center;letter-spacing:.5px;
+}
+
+/* ── SECTION TITLE ───────────────────────── */
+.sec-title{
+  font-family:'Press Start 2P',monospace;font-size:8px;
+  color:var(--yellow);text-shadow:1px 1px 0 var(--border);
+  letter-spacing:.5px;margin-bottom:10px;
+}
+
+/* ── PROGRESS GRID ───────────────────────── */
+.kpi-card{
+  background:var(--bg2);border:3px solid var(--border);
+  box-shadow:3px 3px 0 var(--border);border-radius:4px;
+  padding:12px;
+}
+.kpi-label{
+  font-family:'Press Start 2P',monospace;font-size:6px;
+  color:var(--gray);margin-bottom:6px;letter-spacing:.3px;
+}
+.kpi-value{
+  font-family:'Press Start 2P',monospace;font-size:11px;
+  color:var(--yellow);text-shadow:1px 1px 0 rgba(0,0,0,.5);
+}
+.kpi-sub{font-size:11px;color:var(--gray);margin-top:3px;}
+
+/* ── PILL FILTER ─────────────────────────── */
+.pill{
+  padding:5px 10px;border-radius:3px;
+  border:2px solid var(--border);font-size:11px;
+  cursor:pointer;white-space:nowrap;
+  font-family:system-ui,sans-serif;
+  transition:transform .08s;
+}
+.pill:active{transform:scale(.96);}
+.pill-active{background:var(--red);color:#fff;border-color:var(--border);}
+.pill-inactive{background:var(--bg2);color:var(--gray);border-color:rgba(255,255,255,.1);}
+
+/* ── LOGIN SCREEN ────────────────────────── */
+.login-bg{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:24px;
+  position:relative;z-index:1;
+}
+.pokeball-anim{animation:pokeball-spin 3s linear infinite;}
+@keyframes pokeball-spin{
+  0%{transform:rotate(0deg) scale(1);}
+  50%{transform:rotate(180deg) scale(1.1);}
+  100%{transform:rotate(360deg) scale(1);}
+}
+.press-start{
+  font-family:'Press Start 2P',monospace;font-size:9px;
+  color:var(--yellow);text-align:center;
+  animation:blink 1s infinite;margin-bottom:32px;
+}
+
+/* ── GRID UTILS ──────────────────────────── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.row{display:flex;align-items:center;}
+.row-bet{display:flex;align-items:center;justify-content:space-between;}
+.col{display:flex;flex-direction:column;}
+.pill-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;}
+
+/* ── SCROLL ──────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── CALENDAR CELL ───────────────────────── */
+.cal-cell{
+  aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  border-radius:3px;cursor:pointer;font-size:12px;
+  border:2px solid transparent;font-weight:600;
+  transition:transform .08s;
+}
+.cal-cell:active{transform:scale(.9);}
+
+/* ── PRINT ───────────────────────────────── */
+@media print{
+  .bottom-nav,.no-print,.px-btn,.fab,.icon-btn{display:none!important;}
+  body{background:white;color:black;max-width:100%;}
+  .px-card{border:1px solid #ccc;box-shadow:none;}
+  body::before{display:none;}
+  #printable{color:black!important;}
+}
+
+/* ── SAFE AREA ───────────────────────────── */
+.app{padding-bottom:calc(80px + env(safe-area-inset-bottom));}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* ══ FIREBASE AUTO-INIT (from saved config) ══ */
+(function(){
+  try{
+    var cfg=JSON.parse(localStorage.getItem('px_firebase_config')||'null');
+    if(cfg&&cfg.apiKey){
+      if(!firebase.apps.length)firebase.initializeApp(cfg);
+      window.__auth=firebase.auth();
+      window.__db=firebase.firestore();
+    }
+  }catch(e){console.warn('Firebase init:',e);}
+})();
+</script>
+
+<script>
+/* ══ PWA MANIFEST INJECTION ══ */
+(function(){
+  const m={
+    name:"BESTPART GYM - Studio Manager",
+    short_name:"BESTPART GYM",
+    description:"Studio Job Manager with Pokemon theme",
+    start_url:"./pixory-studio.html",
+    display:"standalone",
+    background_color:"#1a1c2c",
+    theme_color:"#1a1c2c",
+    orientation:"portrait",
+    icons:[{
+      src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23CC0000'/%3E%3Cpath d='M0 100 A100 100 0 0 1 200 100' fill='%23F8F8F8'/%3E%3Crect x='0' y='88' width='200' height='24' fill='%23181018'/%3E%3Ccircle cx='100' cy='100' r='24' fill='%23F8F8F8' stroke='%23181018' stroke-width='8'/%3E%3C/svg%3E",
+      sizes:"512x512",type:"image/svg+xml"
+    }]
+  };
+  try{
+    const b=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});
+    const l=document.createElement('link');
+    l.rel='manifest';l.href=URL.createObjectURL(b);
+    document.head.appendChild(l);
+  }catch(e){}
+})();
+</script>
+
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback,useMemo}=React;
+
+/* ══════════════════════════════════════════
+   CONSTANTS
+   ══════════════════════════════════════════ */
+const POKE_TYPES={
+  B2C:{color:'#F0A000', bg:'#FFFDE0', name:'บุคคล',  desc:'ไม่หักภาษี ณ ที่จ่าย', pokemon:'pikachu'},
+  B2B:{color:'#F08030', bg:'#FFF0E0', name:'บริษัท', desc:'หักภาษี ณ ที่จ่าย 3%',  pokemon:'charmander'},
+  Gov:{color:'#6890F0', bg:'#E8F0FF', name:'ราชการ', desc:'หักภาษี ณ ที่จ่าย 3%',  pokemon:'bulbasaur'},
+};
+const JOB_TYPES=['Wedding','Pre-wedding','Corporate Event','Portrait','Product','Studio','Events','อื่นๆ'];
+const TH_M=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const TH_MS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const EN_M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const EN_MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const VAT=.07,WHT=.03;
+
+/* ══════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════ */
+const fc=n=>'฿'+(n||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fd=d=>{if(!d)return'';const t=new Date(d);return`${t.getDate()} ${TH_MS[t.getMonth()]} ${t.getFullYear()+543}`;};
+const fdk=d=>{if(!d)return'';const t=new Date(d);return`${t.getDate()} ${TH_M[t.getMonth()]} ${t.getFullYear()+543}`;};
+const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+const shortK=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':String(n);
+
+/* localStorage hook — ใช้สำหรับ settings เท่านั้น */
+function useLS(key,init){
+  const[val,set]=useState(()=>{try{const s=localStorage.getItem(key);return s?JSON.parse(s):init;}catch{return init;}});
+  const setter=useCallback(v=>{set(p=>{const n=typeof v==='function'?v(p):v;localStorage.setItem(key,JSON.stringify(n));return n;});},[key]);
+  return[val,setter];
+}
+
+/* Firestore hook — sync ข้อมูลแบบ real-time per-user */
+function useFirestore(uid,collName,init){
+  const initRef=useRef(init);
+  const[val,setVal]=useState(uid?[]:init);
+  const valRef=useRef(val);
+  valRef.current=val;
+
+  useEffect(()=>{
+    if(!uid||!window.__db){setVal(initRef.current);return;}
+    const col=window.__db.collection('users').doc(uid).collection(collName);
+    const unsub=col.onSnapshot(snap=>{
+      setVal(snap.docs.map(d=>({...d.data(),id:d.id})));
+    },err=>console.error('Firestore:',err));
+    return()=>unsub();
+  },[uid,collName]);
+
+  const setter=useCallback((v)=>{
+    const prev=valRef.current;
+    const next=typeof v==='function'?v(prev):v;
+    setVal(next);
+    if(!uid||!window.__db)return;
+    const col=window.__db.collection('users').doc(uid).collection(collName);
+    const prevMap=new Map(prev.map(x=>[x.id,x]));
+    const nextMap=new Map(next.map(x=>[x.id,x]));
+    prev.forEach(item=>{if(!nextMap.has(item.id))col.doc(item.id).delete().catch(console.error);});
+    next.forEach(item=>{
+      const old=prevMap.get(item.id);
+      if(!old||JSON.stringify(old)!==JSON.stringify(item))col.doc(item.id).set(item).catch(console.error);
+    });
+  },[uid,collName]);
+
+  return[val,setter];
+}
+
+function hpClass(pct){return pct>=50?'high':pct>=25?'mid':'low';}
+
+/* ══════════════════════════════════════════
+   DEMO DATA
+   ══════════════════════════════════════════ */
+const DEMO_C=[
+  {id:'c1',name:'ลูกค้า A',type:'B2C',phone:'081-234-5678',lineId:'@customera',taxId:'',address:''},
+  {id:'c2',name:'บริษัท ตัวอย่าง จำกัด',type:'B2B',phone:'02-123-4567',lineId:'',taxId:'0000000000000',address:'123 ถ.สาทร กรุงเทพฯ'},
+  {id:'c3',name:'คุณสมชาย ใจดี',type:'B2C',phone:'089-876-5432',lineId:'@somchai',taxId:'',address:''},
+  {id:'c4',name:'สำนักงาน ก.ท.',type:'Gov',phone:'02-999-0000',lineId:'',taxId:'0000000000001',address:'1 ถ.ราชดำเนิน กรุงเทพฯ'},
+];
+const DEMO_J=[
+  {id:'j1',customerId:'c1',customerName:'ลูกค้า A',customerType:'B2C',jobType:'Wedding',date:'2026-05-22',location:'Rin at Raintree',totalAmount:35000,status:'active',notes:'',calEventId:null},
+  {id:'j2',customerId:'c2',customerName:'บริษัท ตัวอย่าง จำกัด',customerType:'B2B',jobType:'Corporate Event',date:'2026-05-12',location:'กรุงเทพฯ',totalAmount:23000,status:'completed',notes:'',calEventId:null},
+  {id:'j3',customerId:'c3',customerName:'คุณสมชาย ใจดี',customerType:'B2C',jobType:'Pre-wedding',date:'2026-05-20',location:'เชียงใหม่',totalAmount:15000,status:'active',notes:'',calEventId:null},
+  {id:'j4',customerId:'c4',customerName:'สำนักงาน ก.ท.',customerType:'Gov',jobType:'Events',date:'2026-06-08',location:'กรุงเทพฯ',totalAmount:28000,status:'active',notes:'',calEventId:null},
+];
+const DEMO_P=[
+  {id:'p1',jobId:'j1',amount:10000,date:'2026-05-01',note:'มัดจำ'},
+  {id:'p2',jobId:'j2',amount:10000,date:'2026-04-15',note:'มัดจำ'},
+  {id:'p3',jobId:'j2',amount:13000,date:'2026-05-12',note:'ชำระส่วนที่เหลือ'},
+  {id:'p4',jobId:'j3',amount:5000,date:'2026-05-05',note:'มัดจำ'},
+];
+const DEMO_Q=[
+  {id:'q1',jobId:'j2',customerId:'c2',customerName:'บริษัท ตัวอย่าง จำกัด',customerType:'B2B',date:'2026-04-10',items:[{desc:'Corporate Event Photography',amount:15000},{desc:'Highlight Video',amount:8000}],useVat:true,useWht:true},
+];
+
+/* ══════════════════════════════════════════
+   GOOGLE CALENDAR API
+   ══════════════════════════════════════════ */
+async function calendarCreateEvent(accessToken,job){
+  try{
+    const event={
+      summary:`${job.customerName}${job.location?' · '+job.location:''}${job.date?' · '+job.date:''}`,
+      location:job.location||'',
+      description:`ประเภท: ${job.jobType}\nราคา: ${fc(job.totalAmount)}${job.notes?'\n'+job.notes:''}`,
+      start:{date:job.date},
+      end:{date:job.date},
+      colorId:'11',
+      reminders:{useDefault:false,overrides:[{method:'popup',minutes:1440}]},
+    };
+    const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${accessToken}`,'Content-Type':'application/json'},
+      body:JSON.stringify(event),
+    });
+    if(r.ok){const d=await r.json();return d.id;}
+    return null;
+  }catch{return null;}
+}
+
+async function calendarDeleteEvent(accessToken,eventId){
+  try{
+    await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`,{
+      method:'DELETE',
+      headers:{'Authorization':`Bearer ${accessToken}`},
+    });
+  }catch{}
+}
+
+/* ══════════════════════════════════════════
+   SHARED COMPONENTS
+   ══════════════════════════════════════════ */
+function TypeBadge({type}){
+  const t=POKE_TYPES[type]||POKE_TYPES.B2C;
+  return <span className="type-badge" style={{background:t.color,color:'#fff',display:'inline-flex',alignItems:'center',gap:4}}>
+    <img src={`https://img.pokemondb.net/sprites/sword-shield/icon/${t.pokemon}.png`} style={{width:18,height:13,imageRendering:'pixelated',verticalAlign:'middle'}} alt=""/>
+    {t.name}
+  </span>;
+}
+
+function TopBar({title,onBack,onAdd,addLabel,right}){
+  return(
+    <div className="top-bar">
+      {onBack&&<button className="icon-btn" onClick={onBack}>←</button>}
+      <span className="top-bar-title">▶ {title}</span>
+      {right}
+      {onAdd&&(
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+          <button className="fab" onClick={onAdd}>+</button>
+          {addLabel&&<div style={{fontFamily:"'Press Start 2P',monospace",fontSize:5,color:'#aaa',letterSpacing:.3,whiteSpace:'nowrap'}}>{addLabel}</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function HpBar({paid,total,showLabel=true}){
+  const pct=total>0?Math.min(100,paid/total*100):0;
+  return(
+    <div>
+      {showLabel&&(
+        <div className="row-bet" style={{marginBottom:3}}>
+          <span className="hp-label">HP</span>
+          <span style={{fontSize:10,color:'#555'}}>{Math.round(pct)}%</span>
+        </div>
+      )}
+      <div className="hp-bar-outer">
+        <div className={`hp-bar-inner ${hpClass(pct)}`} style={{width:`${pct}%`}}/>
+      </div>
+    </div>
+  );
+}
+
+function KpiCard({label,value,sub,color}){
+  return(
+    <div className="kpi-card">
+      <div className="kpi-label">{label}</div>
+      <div className="kpi-value" style={color?{color}:{}}>{value}</div>
+      {sub&&<div className="kpi-sub">{sub}</div>}
+    </div>
+  );
+}
+
+function ModalSheet({title,onClose,children}){
+  return(
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal-sheet">
+        <div className="modal-title">{title}</div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   LOGIN SCREEN (Firebase Auth)
+   ══════════════════════════════════════════ */
+function LoginScreen({onLogin,onDemo}){
+  const[configText,setConfigText]=useLS('px_firebase_config','');
+  const[showSetup,setShowSetup]=useState(!window.__auth);
+  const[loading,setLoading]=useState(false);
+  const[err,setErr]=useState('');
+
+  const saveConfig=async()=>{
+    try{
+      const cfg=JSON.parse(configText);
+      if(!cfg.apiKey)throw new Error('ไม่พบ apiKey');
+      // Re-init Firebase (delete old apps first)
+      await Promise.all(firebase.apps.map(a=>a.delete()));
+      firebase.initializeApp(cfg);
+      window.__auth=firebase.auth();
+      window.__db=firebase.firestore();
+      setErr('');
+      setShowSetup(false);
+    }catch(e){setErr('Config ไม่ถูกต้อง: '+e.message);}
+  };
+
+  const doGoogleLogin=async()=>{
+    if(!window.__auth){setShowSetup(true);return;}
+    setLoading(true);setErr('');
+    try{
+      const provider=new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/calendar.events');
+      const result=await window.__auth.signInWithPopup(provider);
+      const accessToken=result.credential.accessToken;
+      const u=result.user;
+      onLogin({user:{name:u.displayName,email:u.email,picture:u.photoURL,uid:u.uid},accessToken});
+    }catch(e){
+      if(e.code==='auth/popup-closed-by-user')setErr('ปิด popup ก่อน Login');
+      else setErr('Login ไม่สำเร็จ: '+(e.message||''));
+      setLoading(false);
+    }
+  };
+
+  return(
+    <div className="login-bg">
+      <div style={{textAlign:'center',marginBottom:32}}>
+        <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:14,color:'#FFD700',textShadow:'3px 3px 0 #181018',letterSpacing:2,lineHeight:2}}>
+          BESTPART<br/>GYM
+        </div>
+        <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#888',marginTop:4,letterSpacing:1}}>
+          STUDIO IN YOUR POCKET
+        </div>
+      </div>
+
+      <div className="pokeball-anim" style={{marginBottom:40}}>
+        <svg width="96" height="96" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="96" fill="#CC0000" stroke="#181018" strokeWidth="8"/>
+          <path d="M4,100 A96,96,0,0,1,196,100" fill="#F8F8F8"/>
+          <rect x="4" y="88" width="192" height="24" fill="#181018"/>
+          <circle cx="100" cy="100" r="24" fill="#F8F8F8" stroke="#181018" strokeWidth="8"/>
+          <circle cx="100" cy="100" r="14" fill="#F8F8F8"/>
+          <circle cx="80" cy="70" r="8" fill="rgba(255,255,255,.4)"/>
+        </svg>
+      </div>
+
+      {window.__auth&&<div style={{background:'#003300',border:'2px solid #00C830',borderRadius:4,padding:'6px 12px',marginBottom:12,fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#00C830',textAlign:'center'}}>✓ Firebase Connected</div>}
+
+      {err&&<div style={{background:'#4a0000',border:'2px solid #CC0000',borderRadius:4,padding:'8px 12px',marginBottom:12,fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#ff8888',textAlign:'center'}}>{err}</div>}
+
+      <div style={{width:'100%',maxWidth:320}}>
+        <button className="px-btn px-btn-red" onClick={doGoogleLogin} style={{marginBottom:10,fontSize:9}}>
+          {loading?'กำลัง Login..':'🔑 LOGIN WITH GOOGLE'}
+        </button>
+        <button className="px-btn px-btn-yellow" onClick={onDemo} style={{marginBottom:24,fontSize:8}}>
+          ⚡ DEMO MODE (ทดลองใช้)
+        </button>
+        <div style={{textAlign:'center'}}>
+          <button onClick={()=>setShowSetup(true)}
+            style={{background:'none',border:'none',color:'#888',fontFamily:"'Press Start 2P',monospace",fontSize:7,cursor:'pointer',letterSpacing:.5}}>
+            ⚙ ตั้งค่า Firebase
+          </button>
+        </div>
+      </div>
+
+      {showSetup&&(
+        <ModalSheet title="FIREBASE SETUP" onClose={()=>setShowSetup(false)}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,lineHeight:2.2,color:'#555',marginBottom:12}}>
+            วิธีตั้งค่า:<br/>
+            1. console.firebase.google.com<br/>
+            2. New Project → Add Web App<br/>
+            3. Authentication → Google Provider<br/>
+            4. Firestore Database → Create<br/>
+            5. Project Settings → Config<br/>
+            6. Copy JSON มาวางด้านล่าง
+          </div>
+          <div className="field-label">FIREBASE CONFIG (JSON)</div>
+          <textarea value={configText} onChange={e=>setConfigText(e.target.value)} rows={6}
+            placeholder={'{\n  "apiKey": "AIza...",\n  "authDomain": "app.firebaseapp.com",\n  "projectId": "my-app"\n}'}
+            style={{resize:'none',fontSize:11,fontFamily:'monospace',marginBottom:8}}/>
+          {err&&<div style={{color:'#CC0000',fontSize:11,marginBottom:8}}>{err}</div>}
+          <div style={{background:'#1a1c2c',borderRadius:4,padding:10,marginBottom:12,fontFamily:'monospace',fontSize:10,color:'#6af',lineHeight:1.8}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888',marginBottom:6}}>FIRESTORE SECURITY RULES:</div>
+            match /users/{'{'}{'{'}userId{'}'}{'}'}{'/'}{'{'}document=**{'}'} {'{'}<br/>
+            &nbsp;&nbsp;allow read, write: if<br/>
+            &nbsp;&nbsp;request.auth.uid == userId;<br/>
+            {'}'}
+          </div>
+          <button className="px-btn px-btn-red" onClick={saveConfig}>🔥 SAVE & CONNECT</button>
+        </ModalSheet>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   DASHBOARD
+   ══════════════════════════════════════════ */
+function Dashboard({jobs,payments,user,onNav,onLogout}){
+  const cvs=useRef();const ch=useRef();
+  const recv=payments.reduce((s,p)=>s+p.amount,0);
+  const active=jobs.filter(j=>j.status==='active');
+  const debt=jobs.reduce((s,j)=>{const p=payments.filter(x=>x.jobId===j.id).reduce((a,x)=>a+x.amount,0);return s+Math.max(0,j.totalAmount-p);},0);
+  const monthly=Array(12).fill(0);
+  payments.forEach(p=>{const m=new Date(p.date).getMonth();monthly[m]+=p.amount;});
+
+  useEffect(()=>{
+    if(!cvs.current)return;
+    if(ch.current)ch.current.destroy();
+    ch.current=new Chart(cvs.current.getContext('2d'),{
+      type:'line',
+      data:{labels:TH_MS,datasets:[{data:monthly,borderColor:'#FFD700',backgroundColor:'rgba(255,215,0,.1)',tension:.4,fill:true,pointRadius:0,borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}},
+    });
+    return()=>{if(ch.current)ch.current.destroy();};
+  },[payments]);
+
+  return(
+    <div className="screen">
+      {/* Header */}
+      <div style={{padding:'16px 16px 8px',display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+        <div>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#888',marginBottom:2}}>Trainer Dashboard</div>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:11,color:'#FFD700',textShadow:'2px 2px 0 #181018'}}>
+            {user?.name?.split(' ')[0]||'TRAINER'}
+          </div>
+        </div>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          {user?.picture&&<img src={user.picture} style={{width:34,height:34,borderRadius:2,border:'2px solid #FFD700'}} alt=""/>}
+          <button className="icon-btn" onClick={onLogout} title="Logout">🚪</button>
+        </div>
+      </div>
+
+      {/* Revenue Hero */}
+      <div style={{margin:'4px 16px 12px'}}>
+        <div className="px-card-dark" style={{padding:16}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#888',marginBottom:2}}>GUILD GOLD (ปี {new Date().getFullYear()+543})</div>
+          <div style={{fontSize:10,color:'#aaa',marginBottom:6,fontFamily:'system-ui'}}>ยอดรวมทั้งหมด</div>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:16,color:'#FFD700',textShadow:'2px 2px 0 rgba(0,0,0,.5)',marginBottom:8}}>{fc(recv)}</div>
+          <div style={{height:64}}><canvas ref={cvs}/></div>
+        </div>
+      </div>
+
+      {/* KPIs */}
+      <div className="g2" style={{padding:'0 16px',gap:10,marginBottom:12}}>
+        <KpiCard label="⚔️ QUEST TOTAL" value={fc(jobs.reduce((s,j)=>s+j.totalAmount,0))} sub={`${jobs.length} quests`}/>
+        <KpiCard label="💰 GOLD RECV" value={fc(recv)} sub="รับแล้ว" color="#00C830"/>
+        <KpiCard label="❗ DEBT" value={fc(debt)} sub={`${active.filter(j=>{const p=payments.filter(x=>x.jobId===j.id).reduce((a,x)=>a+x.amount,0);return p<j.totalAmount;}).length} quests`} color={debt>0?'#E82020':'#00C830'}/>
+        <KpiCard label="📋 ACTIVE" value={active.length} sub="ongoing quests" color="#FFD700"/>
+      </div>
+
+      {/* Active jobs */}
+      <div style={{padding:'0 16px'}}>
+        <div className="row-bet" style={{marginBottom:10}}>
+          <div>
+            <span className="sec-title">⚔️ ACTIVE QUESTS</span>
+            <div style={{fontSize:11,color:'#aaa',marginTop:3,fontFamily:'system-ui'}}>คิวงาน</div>
+          </div>
+          <div style={{textAlign:'right'}}>
+            <button onClick={()=>onNav('jobs')} style={{background:'none',border:'none',color:'#FFD700',fontFamily:"'Press Start 2P',monospace",fontSize:7,cursor:'pointer'}}>ALL →</button>
+            <div style={{fontSize:10,color:'#aaa',marginTop:2,fontFamily:'system-ui'}}>ดูทั้งหมด</div>
+          </div>
+        </div>
+        {active.slice(0,3).map(job=>{
+          const paid=payments.filter(x=>x.jobId===job.id).reduce((a,x)=>a+x.amount,0);
+          const rem=job.totalAmount-paid;
+          const pct=job.totalAmount>0?Math.min(100,paid/job.totalAmount*100):0;
+          return(
+            <div key={job.id} className="job-card" onClick={()=>onNav('jobDetail',job)}>
+              <div className="row-bet" style={{marginBottom:8}}>
+                <div className="row" style={{gap:6}}>
+                  <TypeBadge type={job.customerType}/>
+                  <span style={{fontSize:11,color:'#888'}}>{fd(job.date)}</span>
+                </div>
+                {job.calEventId&&<span title="Synced to Google Calendar" style={{fontSize:12}}>📅</span>}
+              </div>
+              <div className="row-bet" style={{marginBottom:8}}>
+                <div>
+                  <div style={{fontWeight:700,color:'#181018',fontSize:14}}>{job.customerName}</div>
+                  <div style={{color:'#888',fontSize:12}}>{job.jobType}{job.location?` · ${job.location}`:''}</div>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#181018'}}>{fc(job.totalAmount)}</div>
+                  {rem>0&&<div style={{color:'#E82020',fontSize:11}}>−{fc(rem)}</div>}
+                  {rem===0&&<div style={{color:'#00C830',fontSize:11}}>✓ FULL</div>}
+                </div>
+              </div>
+              <HpBar paid={paid} total={job.totalAmount} showLabel={false}/>
+            </div>
+          );
+        })}
+        {active.length===0&&(
+          <div className="dialog-box" style={{textAlign:'center'}}>
+            <div style={{fontSize:32,marginBottom:8}}>🌟</div>
+            <div>ไม่มี Quest ที่กำลังทำอยู่</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   JOBS LIST
+   ══════════════════════════════════════════ */
+function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
+  const[search,setSearch]=useState('');
+  const[filter,setFilter]=useState('all');
+  const[showAdd,setShowAdd]=useState(false);
+  const[syncing,setSyncing]=useState(false);
+  const[editingJob,setEditingJob]=useState(null);
+  const[editSyncing,setEditSyncing]=useState(false);
+  const[form,setForm]=useState({
+    customerType:'B2C',customerId:'',customerName:'',
+    jobType:'Wedding',date:new Date().toISOString().slice(0,10),
+    location:'',totalAmount:'',notes:'',syncCal:false,
+  });
+  const[editForm,setEditForm]=useState({customerType:'B2C',customerName:'',jobType:'Wedding',date:'',location:'',totalAmount:'',notes:''});
+
+  const startEdit=(job)=>{
+    setEditingJob(job);
+    setEditForm({customerType:job.customerType,customerName:job.customerName,jobType:job.jobType,date:job.date,location:job.location||'',totalAmount:String(job.totalAmount),notes:job.notes||''});
+  };
+  const saveEdit=async()=>{
+    if(!editForm.customerName||!editForm.totalAmount)return;
+    setEditSyncing(true);
+    const updated={...editingJob,...editForm,totalAmount:parseFloat(editForm.totalAmount)||0};
+    if(editingJob.calEventId&&accessToken){
+      await calendarDeleteEvent(accessToken,editingJob.calEventId);
+      const eid=await calendarCreateEvent(accessToken,updated);
+      updated.calEventId=eid||null;
+    }
+    setJobs(p=>p.map(j=>j.id===editingJob.id?updated:j));
+    setEditingJob(null);setEditSyncing(false);
+  };
+
+  const filtered=useMemo(()=>[...jobs].reverse().filter(j=>{
+    const ok=j.customerName.toLowerCase().includes(search.toLowerCase())||j.jobType.toLowerCase().includes(search.toLowerCase());
+    return ok&&(filter==='all'||j.status===filter);
+  }),[jobs,search,filter]);
+
+  const addJob=async()=>{
+    if(!form.customerName||!form.totalAmount)return;
+    setSyncing(true);
+    const newJob={
+      id:gid(),customerId:form.customerId,customerName:form.customerName,
+      customerType:form.customerType,jobType:form.jobType,date:form.date,
+      location:form.location,totalAmount:parseFloat(form.totalAmount)||0,
+      status:'active',notes:form.notes,calEventId:null,
+    };
+    // Sync to Google Calendar if requested
+    if(form.syncCal&&accessToken){
+      const eid=await calendarCreateEvent(accessToken,newJob);
+      if(eid)newJob.calEventId=eid;
+    }
+    setJobs(p=>[...p,newJob]);
+    setSyncing(false);setShowAdd(false);
+    setForm({customerType:'B2C',customerId:'',customerName:'',jobType:'Wedding',date:new Date().toISOString().slice(0,10),location:'',totalAmount:'',notes:'',syncCal:false});
+  };
+
+  return(
+    <div className="screen">
+      <TopBar title="QUEST BOARD" onAdd={()=>setShowAdd(true)} addLabel="ลงคิวงาน"/>
+      <div style={{padding:'0 16px'}}>
+        <input placeholder="🔍 ค้นหา ชื่อ · ประเภทงาน" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:10}}/>
+        <div className="pill-row" style={{marginBottom:12}}>
+          {[['all','ทั้งหมด'],['active','กำลังทำ'],['completed','เสร็จแล้ว']].map(([k,l])=>(
+            <button key={k} className={`pill ${filter===k?'pill-active':'pill-inactive'}`} onClick={()=>setFilter(k)}>{l}</button>
+          ))}
+        </div>
+        {filtered.map(job=>{
+          const paid=payments.filter(x=>x.jobId===job.id).reduce((a,x)=>a+x.amount,0);
+          const rem=job.totalAmount-paid;
+          const pct=job.totalAmount>0?Math.min(100,paid/job.totalAmount*100):0;
+          return(
+            <div key={job.id} className="job-card" onClick={()=>onNav('jobDetail',job)}>
+              <div className="row-bet" style={{marginBottom:6}}>
+                <div className="row" style={{gap:6,flexWrap:'wrap'}}>
+                  <TypeBadge type={job.customerType}/>
+                  <span style={{fontSize:11,color:'#888'}}>{fd(job.date)}</span>
+                  {job.calEventId&&<span title="Google Calendar" style={{fontSize:12}}>📅</span>}
+                </div>
+                <div className="row" style={{gap:6,alignItems:'center'}}>
+                  <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:job.status==='completed'?'#00C830':'#FFD700'}}>
+                    {job.status==='completed'?'DONE':'ACTIVE'}
+                  </span>
+                  <button onClick={(e)=>{e.stopPropagation();startEdit(job);}} title="แก้ไข"
+                    style={{background:'#EBF3FF',border:'2px solid #3860D0',borderRadius:3,padding:'2px 5px',cursor:'pointer',fontSize:12,lineHeight:1}}>✏️</button>
+                </div>
+              </div>
+              <div className="row-bet" style={{marginBottom:8}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:14}}>{job.customerName}</div>
+                  <div style={{color:'#888',fontSize:12}}>{job.jobType}{job.location?` · ${job.location}`:''}</div>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9}}>{fc(job.totalAmount)}</div>
+                  {rem>0&&<div style={{color:'#E82020',fontSize:11}}>คงเหลือ {fc(rem)}</div>}
+                  {rem===0&&<div style={{color:'#00C830',fontSize:11}}>✓ ชำระครบ</div>}
+                </div>
+              </div>
+              <HpBar paid={paid} total={job.totalAmount} showLabel={false}/>
+            </div>
+          );
+        })}
+        {filtered.length===0&&<div style={{textAlign:'center',padding:40,color:'#888',fontFamily:"'Press Start 2P',monospace",fontSize:8,lineHeight:2}}>NO QUESTS FOUND</div>}
+      </div>
+
+      {/* Edit Job Modal */}
+      {editingJob&&(
+        <ModalSheet title="✏️ EDIT QUEST" onClose={()=>setEditingJob(null)}>
+          <div style={{display:'flex',gap:6,marginBottom:14}}>
+            {Object.entries(POKE_TYPES).map(([k,v])=>(
+              <button key={k} onClick={()=>setEditForm(f=>({...f,customerType:k}))}
+                style={{flex:1,padding:'8px 4px',borderRadius:4,border:`3px solid ${editForm.customerType===k?v.color:'#ccc'}`,background:editForm.customerType===k?v.bg:'#fafafa',cursor:'pointer',textAlign:'center',fontFamily:'inherit',boxShadow:editForm.customerType===k?`3px 3px 0 ${v.color}`:'none'}}>
+                <img src={`https://img.pokemondb.net/sprites/sword-shield/icon/${v.pokemon}.png`} style={{width:40,height:30,imageRendering:'pixelated',display:'block',margin:'0 auto 4px'}} alt={v.name}/>
+                <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#181018'}}>{v.name}</div>
+              </button>
+            ))}
+          </div>
+          <div className="field-label">ชื่อลูกค้า *</div>
+          <input value={editForm.customerName} onChange={e=>setEditForm(f=>({...f,customerName:e.target.value}))} placeholder="ชื่อลูกค้า"/>
+          <div className="field-label">QUEST TYPE</div>
+          <select value={editForm.jobType} onChange={e=>setEditForm(f=>({...f,jobType:e.target.value}))}>
+            {JOB_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+          </select>
+          <div className="g2" style={{marginTop:10}}>
+            <div><div className="field-label">DATE</div><input type="date" value={editForm.date} onChange={e=>setEditForm(f=>({...f,date:e.target.value}))}/></div>
+            <div><div className="field-label">สถานที่</div><input value={editForm.location} onChange={e=>setEditForm(f=>({...f,location:e.target.value}))} placeholder="สถานที่"/></div>
+          </div>
+          <div className="field-label">GOLD REWARD (บาท) *</div>
+          <input type="number" value={editForm.totalAmount} onChange={e=>setEditForm(f=>({...f,totalAmount:e.target.value}))} placeholder="999999999"/>
+          <div className="field-label">NOTE</div>
+          <textarea value={editForm.notes} onChange={e=>setEditForm(f=>({...f,notes:e.target.value}))} rows={2} style={{resize:'none'}}/>
+          {editingJob.calEventId&&accessToken&&(
+            <div style={{background:'#EBF3FF',border:'2px solid #3860D0',borderRadius:4,padding:'8px 10px',marginTop:8,fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#3860D0'}}>
+              📅 อัพเดท Google Calendar อัตโนมัติ
+            </div>
+          )}
+          <div style={{display:'flex',gap:8,marginTop:16}}>
+            <button className="px-btn px-btn-blue" onClick={saveEdit} style={{flex:2}}>{editSyncing?'SAVING..':'💾 SAVE CHANGES'}</button>
+            <button className="px-btn px-btn-light" onClick={()=>setEditingJob(null)} style={{flex:1}}>BACK</button>
+          </div>
+        </ModalSheet>
+      )}
+
+      {/* Add Job Modal */}
+      {showAdd&&(
+        <ModalSheet title="NEW QUEST" onClose={()=>setShowAdd(false)}>
+          {/* Type selection */}
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#555',marginBottom:2}}>ประเภทลูกค้า</div>
+          <div style={{display:'flex',gap:6,marginBottom:14}}>
+            {Object.entries(POKE_TYPES).map(([k,v])=>(
+              <button key={k} onClick={()=>setForm(f=>({...f,customerType:k,customerId:'',customerName:''}))}
+                style={{flex:1,padding:'8px 4px',borderRadius:4,border:`3px solid ${form.customerType===k?v.color:'#ccc'}`,background:form.customerType===k?v.bg:'#fafafa',cursor:'pointer',textAlign:'center',fontFamily:'inherit',boxShadow:form.customerType===k?`3px 3px 0 ${v.color}`:'none'}}>
+                <img src={`https://img.pokemondb.net/sprites/sword-shield/icon/${v.pokemon}.png`} style={{width:40,height:30,imageRendering:'pixelated',display:'block',margin:'0 auto 4px'}} alt={v.name}/>
+                <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#181018',marginBottom:2}}>{v.name}</div>
+                <div style={{fontSize:9,color:'#888'}}>{v.desc}</div>
+              </button>
+            ))}
+          </div>
+          {/* Existing customer */}
+          <select value={form.customerId} onChange={e=>{const c=customers.find(x=>x.id===e.target.value);setForm(f=>({...f,customerId:e.target.value,customerName:c?.name||'',customerType:c?.type||f.customerType}));}} style={{marginBottom:0}}>
+            <option value="">— เลือกลูกค้าเดิม หรือพิมพ์ชื่อใหม่ด้านล่าง —</option>
+            {customers.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <div className="field-label">ชื่อลูกค้า *</div>
+          <input value={form.customerName} onChange={e=>setForm(f=>({...f,customerName:e.target.value,customerId:''}))} placeholder="ชื่อลูกค้า"/>
+          <div className="field-label">QUEST TYPE</div>
+          <select value={form.jobType} onChange={e=>setForm(f=>({...f,jobType:e.target.value}))}>
+            {JOB_TYPES.map(t=><option key={t} value={t}>{t}</option>)}
+          </select>
+          <div className="g2" style={{marginTop:10}}>
+            <div><div className="field-label">DATE</div><input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))}/></div>
+            <div><div className="field-label">สถานที่</div><input value={form.location} onChange={e=>setForm(f=>({...f,location:e.target.value}))} placeholder="เช่น Aube , Rin at Raintree , ชื่อโรงแรม"/></div>
+          </div>
+          <div className="field-label">GOLD REWARD (บาท) *</div>
+          <input type="number" value={form.totalAmount} onChange={e=>setForm(f=>({...f,totalAmount:e.target.value}))} placeholder="999999999"/>
+          <div className="field-label">NOTE</div>
+          <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} rows={2} style={{resize:'none'}}/>
+
+          {/* Google Calendar sync */}
+          {accessToken&&(
+            <label style={{display:'flex',gap:10,alignItems:'center',marginTop:12,padding:10,background:'#EBF3FF',borderRadius:4,border:'2px solid #3860D0',cursor:'pointer'}}>
+              <input type="checkbox" checked={form.syncCal} onChange={e=>setForm(f=>({...f,syncCal:e.target.checked}))} style={{width:18,height:18}}/>
+              <div>
+                <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#3860D0'}}>📅 SYNC TO GOOGLE CALENDAR</div>
+                <div style={{fontSize:11,color:'#666',marginTop:2}}>เพิ่มงานนี้ใน Google Calendar ของคุณ</div>
+              </div>
+            </label>
+          )}
+
+          <div style={{display:'flex',gap:8,marginTop:16}}>
+            <button className="px-btn px-btn-red" onClick={addJob} style={{flex:2}}>{syncing?'SYNCING..':'💾 SAVE QUEST'}</button>
+            <button className="px-btn px-btn-light" onClick={()=>setShowAdd(false)} style={{flex:1}}>BACK</button>
+          </div>
+        </ModalSheet>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   JOB DETAIL
+   ══════════════════════════════════════════ */
+function JobDetail({job,jobs,setJobs,payments,setPayments,quotes,setQuotes,customers,accessToken,onBack,onNav}){
+  const[showPay,setShowPay]=useState(false);
+  const[showQuote,setShowQuote]=useState(false);
+  const[payAmt,setPayAmt]=useState('');
+  const[payNote,setPayNote]=useState('มัดจำ');
+  const[syncing,setSyncing]=useState(false);
+  if(!job)return null;
+
+  const jPay=payments.filter(p=>p.jobId===job.id);
+  const paid=jPay.reduce((s,p)=>s+p.amount,0);
+  const rem=job.totalAmount-paid;
+  const pct=job.totalAmount>0?Math.min(100,paid/job.totalAmount*100):0;
+  const jQuotes=quotes.filter(q=>q.jobId===job.id);
+  const liveJob=jobs.find(j=>j.id===job.id)||job;
+
+  const addPay=()=>{
+    if(!payAmt)return;
+    const amt=parseFloat(payAmt);
+    setPayments(p=>[...p,{id:gid(),jobId:job.id,amount:amt,date:new Date().toISOString().slice(0,10),note:payNote}]);
+    if(paid+amt>=job.totalAmount)setJobs(p=>p.map(j=>j.id===job.id?{...j,status:'completed'}:j));
+    setPayAmt('');setPayNote('มัดจำ');setShowPay(false);
+  };
+
+  const syncToCalendar=async()=>{
+    if(!accessToken)return;
+    setSyncing(true);
+    if(liveJob.calEventId)await calendarDeleteEvent(accessToken,liveJob.calEventId);
+    const eid=await calendarCreateEvent(accessToken,liveJob);
+    setJobs(p=>p.map(j=>j.id===job.id?{...j,calEventId:eid}:j));
+    setSyncing(false);
+  };
+  const removeFromCalendar=async()=>{
+    if(!accessToken||!liveJob.calEventId)return;
+    setSyncing(true);
+    await calendarDeleteEvent(accessToken,liveJob.calEventId);
+    setJobs(p=>p.map(j=>j.id===job.id?{...j,calEventId:null}:j));
+    setSyncing(false);
+  };
+  const deleteJob=()=>{
+    if(!confirm('ลบ Quest นี้?'))return;
+    if(liveJob.calEventId&&accessToken)calendarDeleteEvent(accessToken,liveJob.calEventId);
+    setJobs(p=>p.filter(j=>j.id!==job.id));
+    setPayments(p=>p.filter(x=>x.jobId!==job.id));
+    setQuotes(p=>p.filter(x=>x.jobId!==job.id));
+    onBack();
+  };
+
+  return(
+    <div className="screen">
+      <TopBar title={job.customerName.split(' ')[0].toUpperCase()} onBack={onBack}
+        right={<button className="icon-btn" onClick={deleteJob} style={{fontSize:16}}>🗑</button>}/>
+      <div style={{padding:'0 16px'}}>
+        {/* Info */}
+        <div className="px-card" style={{marginBottom:12,padding:14}}>
+          <div className="row-bet" style={{marginBottom:10}}>
+            <TypeBadge type={job.customerType}/>
+            <span style={{fontSize:12,color:'#888'}}>{fd(job.date)}</span>
+          </div>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:12,color:'#181018',marginBottom:4}}>{job.jobType}</div>
+          {job.location&&<div style={{color:'#888',fontSize:13,marginBottom:12}}>📍 {job.location}</div>}
+          <div className="row-bet" style={{marginBottom:6}}>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#555'}}>HP BAR · {Math.round(pct)}%</span>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#181018'}}>{fc(job.totalAmount)}</span>
+          </div>
+          <HpBar paid={paid} total={job.totalAmount} showLabel={false}/>
+          <div className="row-bet" style={{marginTop:6}}>
+            <span style={{fontSize:12,color:'#888'}}>ชำระแล้ว {fc(paid)}</span>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:rem>0?'#E82020':'#00C830'}}>
+              {rem>0?`-${fc(rem)}`:'✓ FULL'}
+            </span>
+          </div>
+        </div>
+
+        {/* Google Calendar sync */}
+        {accessToken&&(
+          <div style={{marginBottom:12}}>
+            {liveJob.calEventId?(
+              <button className="px-btn" style={{background:'#EBF3FF',border:'3px solid #3860D0',boxShadow:'3px 3px 0 #3860D0',color:'#3860D0',fontSize:8}}
+                onClick={removeFromCalendar}>{syncing?'..':'📅 ✓ SYNCED TO CALENDAR · ลบออก'}</button>
+            ):(
+              <button className="px-btn px-btn-blue" style={{fontSize:8}} onClick={syncToCalendar}>
+                {syncing?'SYNCING..':'📅 ADD TO GOOGLE CALENDAR'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="g2" style={{marginBottom:12}}>
+          {rem>0&&<button className="px-btn px-btn-green" style={{fontSize:9}} onClick={()=>setShowPay(true)}>💰 รับเงิน</button>}
+          <button className="px-btn px-btn-dark" style={{fontSize:8}} onClick={()=>setShowQuote(true)}>📜 ใบเสนอ</button>
+        </div>
+
+        {/* Pay form */}
+        {showPay&&(
+          <div className="px-card" style={{marginBottom:12,padding:14,border:'3px solid #00C830',boxShadow:'4px 4px 0 #00C830'}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#181018',marginBottom:10}}>💰 รับเงิน</div>
+            <input type="number" placeholder={`จำนวน (ค้าง ${fc(rem)})`} value={payAmt} onChange={e=>setPayAmt(e.target.value)} style={{marginBottom:8}}/>
+            <select value={payNote} onChange={e=>setPayNote(e.target.value)} style={{marginBottom:10}}>
+              {['มัดจำ','ชำระส่วนที่เหลือ','เงินสด','โอนเงิน','อื่นๆ'].map(v=><option key={v}>{v}</option>)}
+            </select>
+            <div style={{display:'flex',gap:8}}>
+              <button className="px-btn px-btn-green" onClick={addPay} style={{flex:2,fontSize:9}}>✓ SAVE</button>
+              <button className="px-btn px-btn-light" onClick={()=>setShowPay(false)} style={{flex:1,fontSize:9}}>✕</button>
+            </div>
+          </div>
+        )}
+
+        {/* Quote form */}
+        {showQuote&&<QuoteForm job={job} setQuotes={setQuotes} onClose={()=>setShowQuote(false)} onView={q=>{setShowQuote(false);onNav('quoteDetail',q);}}/>}
+
+        {/* Quotes */}
+        {jQuotes.length>0&&(
+          <div className="px-card" style={{marginBottom:12,padding:14}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:10}}>📜 ใบเสนอราคา</div>
+            {jQuotes.map(q=>{
+              const sub=q.items.reduce((s,i)=>s+i.amount,0);
+              const net=sub+(q.useVat?sub*VAT:0)-(q.useWht?sub*WHT:0);
+              return(
+                <div key={q.id} onClick={()=>onNav('quoteDetail',q)}
+                  style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #d8c8a0',cursor:'pointer'}}>
+                  <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#555'}}>QT-{q.id.slice(-6).toUpperCase()}</span>
+                  <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#38A050'}}>{fc(net)}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Payment history */}
+        <div className="px-card" style={{padding:14}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:10}}>PAYMENT LOG</div>
+          {jPay.length===0&&<div style={{color:'#aaa',fontSize:13}}>ยังไม่มีการรับเงิน</div>}
+          {jPay.map(p=>(
+            <div key={p.id} className="row-bet" style={{padding:'8px 0',borderBottom:'1px solid #d8c8a0'}}>
+              <div>
+                <div style={{fontWeight:600,fontSize:13}}>{p.note}</div>
+                <div style={{color:'#888',fontSize:11}}>{fd(p.date)}</div>
+              </div>
+              <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#38A050'}}>+{fc(p.amount)}</div>
+            </div>
+          ))}
+          {rem>0&&(
+            <div className="row-bet" style={{padding:'8px 0',color:'#aaa',fontSize:12}}>
+              <span>รอยอดคงเหลือ...</span><span>—</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   QUOTE FORM
+   ══════════════════════════════════════════ */
+function QuoteForm({job,setQuotes,onClose,onView}){
+  const pt=POKE_TYPES[job.customerType]||POKE_TYPES.B2C;
+  const[items,setItems]=useState([{desc:'',amount:''}]);
+  const[useVat,setUseVat]=useState(job.customerType==='B2B');
+  const[useWht,setUseWht]=useState(job.customerType==='B2B'||job.customerType==='Gov');
+  const sub=items.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const vat=useVat?sub*VAT:0;
+  const total=sub+vat;
+  const wht=useWht?sub*WHT:0;
+  const net=total-wht;
+
+  const save=()=>{
+    const q={id:gid(),jobId:job.id,customerId:job.customerId,customerName:job.customerName,customerType:job.customerType,
+      date:new Date().toISOString().slice(0,10),items:items.filter(i=>i.desc||i.amount).map(i=>({desc:i.desc,amount:parseFloat(i.amount)||0})),useVat,useWht};
+    setQuotes(p=>[...p,q]);onView(q);
+  };
+
+  return(
+    <div className="px-card" style={{marginBottom:12,padding:14,border:'3px solid #3860D0',boxShadow:'4px 4px 0 #3860D0'}}>
+      <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#181018',marginBottom:12}}>📜 ITEM SHOP</div>
+      {items.map((item,i)=>(
+        <div key={i} style={{display:'flex',gap:6,marginBottom:6,alignItems:'center'}}>
+          <input style={{flex:2}} placeholder={`รายการ ${i+1}`} value={item.desc} onChange={e=>setItems(p=>p.map((x,j)=>j===i?{...x,desc:e.target.value}:x))}/>
+          <input style={{flex:1}} type="number" placeholder="฿" value={item.amount} onChange={e=>setItems(p=>p.map((x,j)=>j===i?{...x,amount:e.target.value}:x))}/>
+          {items.length>1&&<button onClick={()=>setItems(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'#E82020',cursor:'pointer',fontSize:18}}>×</button>}
+        </div>
+      ))}
+      <button onClick={()=>setItems(p=>[...p,{desc:'',amount:''}])} style={{color:'#3860D0',background:'none',border:'none',cursor:'pointer',fontFamily:"'Press Start 2P',monospace",fontSize:7,marginBottom:10}}>+ ADD ITEM</button>
+      <div style={{display:'flex',gap:20,marginBottom:10}}>
+        {[['useVat','VAT 7%'],[,'useWht','WHT 3%']].map(([k,l])=>k&&(
+          <label key={k} style={{display:'flex',gap:6,alignItems:'center',color:'#181018',fontSize:13,cursor:'pointer'}}>
+            <input type="checkbox" checked={k==='useVat'?useVat:useWht} onChange={e=>k==='useVat'?setUseVat(e.target.checked):setUseWht(e.target.checked)}/> {l}
+          </label>
+        ))}
+        <label style={{display:'flex',gap:6,alignItems:'center',color:'#181018',fontSize:13,cursor:'pointer'}}>
+          <input type="checkbox" checked={useVat} onChange={e=>setUseVat(e.target.checked)}/> VAT 7%
+        </label>
+        <label style={{display:'flex',gap:6,alignItems:'center',color:'#181018',fontSize:13,cursor:'pointer'}}>
+          <input type="checkbox" checked={useWht} onChange={e=>setUseWht(e.target.checked)}/> WHT 3%
+        </label>
+      </div>
+      {/* Summary */}
+      <div style={{background:'#e8d8b0',borderRadius:4,padding:10,marginBottom:10,border:'2px solid #c8a020'}}>
+        {[['รวม',fc(sub),'#181018'],[useVat&&'VAT 7%',useVat&&fc(vat),'#888'],[useVat&&'ยอดเรียกเก็บ',useVat&&fc(total),'#181018'],[useWht&&'- WHT 3%',useWht&&`-${fc(wht)}`,'#E82020'],['✓ สุทธิ',fc(net),'#38A050']].filter(r=>r[0]).map(([l,v,c])=>(
+          <div key={l} className="row-bet" style={{marginBottom:4,fontSize:13}}>
+            <span style={{color:'#555'}}>{l}</span>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:c}}>{v}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="px-btn px-btn-red" onClick={save} style={{flex:2,fontSize:8}}>✓ CREATE</button>
+        <button className="px-btn px-btn-light" onClick={onClose} style={{flex:1,fontSize:8}}>✕</button>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   QUOTE DETAIL
+   ══════════════════════════════════════════ */
+function QuoteDetail({quote,onBack}){
+  if(!quote)return null;
+  const sub=quote.items.reduce((s,i)=>s+i.amount,0);
+  const vat=quote.useVat?sub*VAT:0;
+  const total=sub+vat;
+  const wht=quote.useWht?sub*WHT:0;
+  const net=total-wht;
+  const docTitle=quote.useVat?'ใบกำกับภาษี':'ใบเสนอราคา';
+
+  return(
+    <div className="screen">
+      <TopBar title={docTitle.toUpperCase()} onBack={onBack}/>
+      <div className="no-print" style={{padding:'0 16px 12px',display:'flex',gap:8}}>
+        <button className="px-btn px-btn-red" onClick={()=>window.print()} style={{flex:1,fontSize:8}}>🖨️ PRINT/PDF</button>
+        <button className="px-btn px-btn-blue" style={{flex:1,fontSize:8}}>📱 LINE</button>
+      </div>
+      <div id="printable" className="px-card" style={{margin:'0 16px',padding:16}}>
+        <div className="row-bet" style={{marginBottom:16}}>
+          <div>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:10,color:'#181018'}}>Pixory Studio</div>
+            <div style={{fontSize:11,color:'#888',marginTop:4}}>เลขผู้เสียภาษี 0000000000000</div>
+          </div>
+          <div style={{textAlign:'right'}}>
+            <span style={{background:'#CC0000',color:'#fff',padding:'3px 10px',borderRadius:3,fontFamily:"'Press Start 2P',monospace",fontSize:7}}>{docTitle}</span>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginTop:6}}>QT-{quote.id.slice(-6).toUpperCase()}</div>
+            <div style={{fontSize:11,color:'#888',marginTop:2}}>{fdk(quote.date)}</div>
+          </div>
+        </div>
+        {/* Customer */}
+        <div style={{background:'#e8d8b0',border:'2px solid #c8a020',borderRadius:4,padding:10,marginBottom:14}}>
+          <div className="row" style={{gap:8,flexWrap:'wrap'}}>
+            <span style={{fontWeight:700,fontSize:14}}>{quote.customerName}</span>
+            <TypeBadge type={quote.customerType}/>
+          </div>
+        </div>
+        {/* Items */}
+        <table style={{width:'100%',borderCollapse:'collapse',marginBottom:14,fontSize:13}}>
+          <thead>
+            <tr style={{background:'#181018',color:'#FFD700',fontFamily:"'Press Start 2P',monospace",fontSize:8}}>
+              <th style={{padding:'8px 10px',textAlign:'left'}}>รายการ</th>
+              <th style={{padding:'8px 10px',textAlign:'right'}}>ยอดรวม</th>
+            </tr>
+          </thead>
+          <tbody>
+            {quote.items.map((item,i)=>(
+              <tr key={i} style={{background:i%2===0?'transparent':'#f5ead8'}}>
+                <td style={{padding:'8px 10px',color:'#333',borderBottom:'1px solid #d8c8a0'}}>{item.desc}</td>
+                <td style={{padding:'8px 10px',textAlign:'right',fontWeight:600,borderBottom:'1px solid #d8c8a0'}}>{item.amount.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {/* Totals */}
+        <div style={{fontSize:13}}>
+          <div className="row-bet" style={{background:'#FFFDE7',padding:'8px 10px',borderRadius:4,marginBottom:4}}>
+            <span style={{fontWeight:700}}>รวมเป็นเงิน</span>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#CC0000'}}>{sub.toLocaleString()}</span>
+          </div>
+          {quote.useVat&&<div className="row-bet" style={{padding:'5px 10px',color:'#555',marginBottom:2}}><span>+ VAT 7%</span><span>{vat.toLocaleString()}</span></div>}
+          {quote.useVat&&<div className="row-bet" style={{padding:'6px 10px',fontWeight:700,borderTop:'2px solid #d8c8a0',marginBottom:2}}><span>ยอดเรียกเก็บ</span><span>{total.toLocaleString()}</span></div>}
+          {quote.useWht&&<div className="row-bet" style={{padding:'5px 10px',color:'#E82020',marginBottom:2}}><span>- WHT 3%</span><span>-{wht.toLocaleString()}</span></div>}
+          <div className="row-bet" style={{background:'#E8F8EC',border:'2px solid #38A050',padding:'10px',borderRadius:4,marginTop:4}}>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#38A050'}}>✓ ยอดสุทธิ</span>
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:12,color:'#38A050'}}>{net.toLocaleString()}</span>
+          </div>
+        </div>
+        {/* Sign */}
+        <div className="g2" style={{marginTop:28,fontSize:11,color:'#888',textAlign:'center'}}>
+          <div style={{borderTop:'1px solid #bbb',paddingTop:6}}>ผู้รับเงิน</div>
+          <div style={{borderTop:'1px solid #bbb',paddingTop:6}}>ผู้จ่ายเงิน</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   QUOTES LIST
+   ══════════════════════════════════════════ */
+function QuotesList({quotes,onNav}){
+  return(
+    <div className="screen">
+      <TopBar title="ITEM SHOP"/>
+      <div style={{padding:'0 16px'}}>
+        {quotes.length===0&&(
+          <div className="dialog-box" style={{textAlign:'center',margin:'16px 0'}}>
+            <div style={{fontSize:40,marginBottom:8}}>📜</div>
+            ยังไม่มีใบเสนอราคา<br/>สร้างจากหน้า Quest
+          </div>
+        )}
+        {[...quotes].reverse().map(q=>{
+          const sub=q.items.reduce((s,i)=>s+i.amount,0);
+          const net=sub+(q.useVat?sub*VAT:0)-(q.useWht?sub*WHT:0);
+          return(
+            <div key={q.id} className="job-card" onClick={()=>onNav('quoteDetail',q)}>
+              <div className="row-bet" style={{marginBottom:6}}>
+                <div className="row" style={{gap:6}}>
+                  <TypeBadge type={q.customerType}/>
+                  <span style={{fontSize:11,color:'#888'}}>{fd(q.date)}</span>
+                </div>
+                <div style={{display:'flex',gap:4}}>
+                  {q.useVat&&<span style={{background:'#EBF3FF',color:'#3860D0',borderRadius:3,padding:'2px 6px',fontFamily:"'Press Start 2P',monospace",fontSize:6}}>VAT</span>}
+                  {q.useWht&&<span style={{background:'#FFF0E0',color:'#F08030',borderRadius:3,padding:'2px 6px',fontFamily:"'Press Start 2P',monospace",fontSize:6}}>WHT</span>}
+                </div>
+              </div>
+              <div className="row-bet">
+                <div>
+                  <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018'}}>QT-{q.id.slice(-6).toUpperCase()}</div>
+                  <div style={{color:'#888',fontSize:12,marginTop:3}}>{q.customerName}</div>
+                </div>
+                <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:11,color:'#38A050'}}>{fc(net)}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   CALENDAR  (+ Google Calendar events)
+   ══════════════════════════════════════════ */
+function CalendarView({jobs,setJobs,accessToken,onNav}){
+  const now=new Date();
+  const[yr,setYr]=useState(now.getFullYear());
+  const[mo,setMo]=useState(now.getMonth());
+  const[sel,setSel]=useState(null);
+  const[gcalEvents,setGcalEvents]=useState([]);
+  const[gcalLoading,setGcalLoading]=useState(false);
+  const[showGcal,setShowGcal]=useState(true);
+
+  const deleteJob=async(job)=>{
+    if(!confirm('ลบ Quest นี้?'))return;
+    if(job.calEventId&&accessToken)await calendarDeleteEvent(accessToken,job.calEventId);
+    setJobs(p=>p.filter(j=>j.id!==job.id));
+  };
+
+  /* ── ดึง Google Calendar events เมื่อเดือนเปลี่ยน ── */
+  useEffect(()=>{
+    if(!accessToken||!showGcal){setGcalEvents([]);return;}
+    setGcalLoading(true);
+    const start=new Date(yr,mo,1).toISOString();
+    const end=new Date(yr,mo+1,0,23,59,59).toISOString();
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(start)}&timeMax=${encodeURIComponent(end)}&singleEvents=true&orderBy=startTime&maxResults=100`,{
+      headers:{Authorization:`Bearer ${accessToken}`}
+    })
+    .then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(data=>{
+      const evts=(data.items||[]).map(e=>({
+        id:'gcal_'+e.id,
+        title:e.summary||'(ไม่มีชื่อ)',
+        date:(e.start?.date||e.start?.dateTime||'').slice(0,10),
+        time:e.start?.dateTime?new Date(e.start.dateTime).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}):'',
+        location:e.location||'',
+        color:e.colorId?['#CC0000','#E67E22','#F1C40F','#27AE60','#3498DB','#9B59B6','#1ABC9C','#E74C3C','#8E44AD','#2980B9','#16A085','#C0392B'][parseInt(e.colorId)-1]||'#3860D0':'#3860D0',
+        isGcal:true,
+      }));
+      setGcalEvents(evts);
+    })
+    .catch(err=>{console.warn('Google Calendar:',err);setGcalEvents([]);})
+    .finally(()=>setGcalLoading(false));
+  },[yr,mo,accessToken,showGcal]);
+
+  /* ── จัดกลุ่ม jobs + gcal events ตามวัน ── */
+  const first=new Date(yr,mo,1).getDay();
+  const dim=new Date(yr,mo+1,0).getDate();
+  const byDay={};
+  jobs.forEach(j=>{
+    const d=new Date(j.date);
+    if(d.getFullYear()===yr&&d.getMonth()===mo){
+      const k=d.getDate();if(!byDay[k])byDay[k]={jobs:[],gcal:[]};
+      byDay[k].jobs.push(j);
+    }
+  });
+  gcalEvents.forEach(e=>{
+    if(!e.date)return;
+    const d=new Date(e.date+'T00:00:00');
+    if(d.getFullYear()===yr&&d.getMonth()===mo){
+      const k=d.getDate();if(!byDay[k])byDay[k]={jobs:[],gcal:[]};
+      byDay[k].gcal.push(e);
+    }
+  });
+
+  const selData=sel?byDay[sel]||{jobs:[],gcal:[]}:{jobs:[],gcal:[]};
+  const selTotal=(selData.jobs.length)+(selData.gcal.length);
+
+  const prev=()=>{if(mo===0){setMo(11);setYr(y=>y-1);}else setMo(m=>m-1);setSel(null);};
+  const next=()=>{if(mo===11){setMo(0);setYr(y=>y+1);}else setMo(m=>m+1);setSel(null);};
+
+  const cellStyle=(d)=>{
+    const day=byDay[d]||{jobs:[],gcal:[]};
+    const cntJob=day.jobs.length;const cntGcal=day.gcal.length;
+    const cnt=cntJob+cntGcal;
+    const isToday=now.getDate()===d&&now.getMonth()===mo&&now.getFullYear()===yr;
+    const isSel=sel===d;
+    if(isSel)return{background:'#CC0000',color:'#fff',border:'2px solid #181018'};
+    if(isToday)return{background:'transparent',color:'#FFD700',border:'2px solid #FFD700'};
+    if(cntJob>=2)return{background:'#8B1A00',color:'#fff',border:'2px solid #181018'};
+    if(cntJob===1&&cntGcal>0)return{background:'#CC0000',color:'#fff',border:'2px solid #181018'};
+    if(cntJob===1)return{background:'#FFD0BC',color:'#181018',border:'2px solid #C8A020'};
+    if(cntGcal>0)return{background:'#1a3a6a',color:'#6af',border:'2px solid #3860D0'};
+    return{background:'transparent',color:'#888',border:'2px solid transparent'};
+  };
+
+  const hasDots=(d)=>{
+    const day=byDay[d]||{jobs:[],gcal:[]};
+    return day.jobs.length>0||day.gcal.length>0;
+  };
+
+  return(
+    <div className="screen">
+      <div style={{padding:'14px 16px 8px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span className="sec-title" style={{margin:0}}>📅 BATTLE MAP</span>
+        <div className="row" style={{gap:6}}>
+          {/* Toggle Google Calendar */}
+          {accessToken&&(
+            <button onClick={()=>setShowGcal(s=>!s)} style={{background:showGcal?'#1a3a6a':'var(--bg2)',border:`2px solid ${showGcal?'#3860D0':'rgba(255,255,255,.1)'}`,color:showGcal?'#6af':'#888',fontFamily:"'Press Start 2P',monospace",fontSize:6,padding:'4px 6px',borderRadius:3,cursor:'pointer',letterSpacing:.3}}>
+              {gcalLoading?'..':showGcal?'📅 ON':'📅 OFF'}
+            </button>
+          )}
+          <button onClick={prev} className="icon-btn" style={{width:28,height:28,fontSize:14}}>‹</button>
+          <div style={{textAlign:'center',minWidth:110}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#FFD700'}}>{EN_MS[mo]} {yr}</div>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:5,color:'#888',marginTop:3}}>{TH_M[mo]} พ.ศ. {yr+543}</div>
+          </div>
+          <button onClick={next} className="icon-btn" style={{width:28,height:28,fontSize:14}}>›</button>
+        </div>
+      </div>
+
+      <div className="px-card" style={{margin:'0 16px',padding:14}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',textAlign:'center',marginBottom:6}}>
+          {['อา','จ','อ','พ','พฤ','ศ','ส'].map(d=><div key={d} style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888'}}>{d}</div>)}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:3}}>
+          {Array(first).fill(null).map((_,i)=><div key={`e${i}`}/>)}
+          {Array(dim).fill(null).map((_,i)=>{
+            const d=i+1;
+            return(
+              <div key={d} className="cal-cell" style={{...cellStyle(d),flexDirection:'column',gap:1,fontSize:hasDots(d)?10:12,fontFamily:hasDots(d)?"'Press Start 2P',monospace":'inherit',fontWeight:hasDots(d)?700:400}}
+                onClick={()=>setSel(d===sel?null:d)}>
+                {d}
+                {/* dot indicators */}
+                {byDay[d]&&(
+                  <div style={{display:'flex',gap:2,justifyContent:'center'}}>
+                    {byDay[d].jobs.length>0&&<div style={{width:4,height:4,borderRadius:'50%',background:'#FFD700'}}/>}
+                    {byDay[d].gcal.length>0&&<div style={{width:4,height:4,borderRadius:'50%',background:'#6af'}}/>}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Legend */}
+        <div style={{display:'flex',flexWrap:'wrap',gap:10,marginTop:10}}>
+          <span style={{display:'flex',alignItems:'center',gap:4,fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888'}}>
+            <span style={{display:'inline-block',width:10,height:10,borderRadius:2,background:'#FFD0BC',border:'1px solid #C8A020'}}/>งานในแอป
+          </span>
+          {accessToken&&showGcal&&(
+            <span style={{display:'flex',alignItems:'center',gap:4,fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888'}}>
+              <span style={{display:'inline-block',width:10,height:10,borderRadius:2,background:'#1a3a6a',border:'1px solid #3860D0'}}/>Google Cal
+            </span>
+          )}
+          {!accessToken&&(
+            <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#555'}}>Login เพื่อดู Google Calendar</span>
+          )}
+        </div>
+      </div>
+
+      {/* วันที่เลือก */}
+      {sel&&(
+        <div style={{padding:'12px 16px 0'}}>
+          <div className="px-card" style={{padding:14}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:10}}>
+              📌 {sel} {TH_M[mo]} · {selTotal} รายการ
+            </div>
+
+            {selTotal===0&&<div style={{color:'#aaa',fontSize:13}}>ว่างครับ ☀️</div>}
+
+            {/* Jobs ในแอป */}
+            {selData.jobs.map(j=>(
+              <div key={j.id} style={{padding:'10px 0',borderBottom:'1px solid #d8c8a0'}}>
+                <div className="row-bet" style={{marginBottom:2}}>
+                  <div style={{display:'flex',gap:6,alignItems:'center'}}>
+                    <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,background:'#FFD700',color:'#181018',padding:'2px 5px',borderRadius:2}}>งาน</span>
+                    <TypeBadge type={j.customerType}/>
+                  </div>
+                  <div style={{display:'flex',gap:4,alignItems:'center'}}>
+                    <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#CC0000'}}>{fc(j.totalAmount)}</div>
+                    <button onClick={()=>onNav('jobDetail',j)} title="แก้ไข" style={{background:'#EBF3FF',border:'2px solid #3860D0',borderRadius:3,padding:'2px 4px',cursor:'pointer',fontSize:11,lineHeight:1}}>✏️</button>
+                    <button onClick={()=>deleteJob(j)} title="ลบ" style={{background:'#FFEDED',border:'2px solid #CC0000',borderRadius:3,padding:'2px 4px',cursor:'pointer',fontSize:11,lineHeight:1}}>🗑</button>
+                  </div>
+                </div>
+                <div style={{fontWeight:700,fontSize:14,marginTop:4,cursor:'pointer',color:'#181018'}} onClick={()=>onNav('jobDetail',j)}>{j.customerName}</div>
+                <div style={{color:'#888',fontSize:12}}>{j.jobType}{j.location?` · ${j.location}`:''}</div>
+              </div>
+            ))}
+
+            {/* Google Calendar events */}
+            {selData.gcal.map(e=>(
+              <div key={e.id} style={{padding:'10px 0',borderBottom:'1px solid #d8c8a0'}}>
+                <div style={{display:'flex',gap:6,alignItems:'center',marginBottom:4}}>
+                  <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,background:'#3860D0',color:'#fff',padding:'2px 5px',borderRadius:2}}>📅 GCAL</span>
+                  {e.time&&<span style={{fontSize:11,color:'#3860D0',fontWeight:600}}>🕐 {e.time}</span>}
+                </div>
+                <div style={{fontWeight:700,fontSize:14,color:'#181018'}}>{e.title}</div>
+                {e.location&&<div style={{color:'#888',fontSize:12}}>📍 {e.location}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══ ALL MONTH QUESTS (ไม่ต้องคลิกวัน) ══ */}
+      {(()=>{
+        const allMonthJobs=[...jobs].filter(j=>{const d=new Date(j.date);return d.getFullYear()===yr&&d.getMonth()===mo;}).sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const allMonthGcal=[...gcalEvents].sort((a,b)=>a.date.localeCompare(b.date));
+        if(allMonthJobs.length===0&&allMonthGcal.length===0)return null;
+        return(
+          <div style={{padding:'12px 16px 0'}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#FFD700',marginBottom:4}}>⚔️ QUESTS THIS MONTH</div>
+            <div style={{fontSize:11,color:'#aaa',marginBottom:10,fontFamily:'system-ui'}}>คิวงานทั้งหมดในเดือน {TH_M[mo]}</div>
+            <div className="px-card" style={{padding:14}}>
+              {allMonthJobs.map(j=>(
+                <div key={j.id} style={{padding:'10px 0',borderBottom:'1px solid #d8c8a0'}}>
+                  <div className="row-bet" style={{marginBottom:4}}>
+                    <div style={{display:'flex',gap:6,alignItems:'center',flexWrap:'wrap'}}>
+                      <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888'}}>{j.date}</span>
+                      <TypeBadge type={j.customerType}/>
+                      {j.calEventId&&<span style={{fontSize:11}}>📅</span>}
+                    </div>
+                    <div style={{display:'flex',gap:4,alignItems:'center'}}>
+                      <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#CC0000'}}>{fc(j.totalAmount)}</span>
+                      <button onClick={()=>onNav('jobDetail',j)} title="แก้ไข" style={{background:'#EBF3FF',border:'2px solid #3860D0',borderRadius:3,padding:'2px 4px',cursor:'pointer',fontSize:10}}>✏️</button>
+                      <button onClick={()=>deleteJob(j)} title="ลบ" style={{background:'#FFEDED',border:'2px solid #CC0000',borderRadius:3,padding:'2px 4px',cursor:'pointer',fontSize:10}}>🗑</button>
+                    </div>
+                  </div>
+                  <div style={{fontWeight:700,fontSize:14,color:'#181018',cursor:'pointer'}} onClick={()=>onNav('jobDetail',j)}>{j.customerName}</div>
+                  <div style={{color:'#888',fontSize:12}}>{j.jobType}{j.location?` · ${j.location}`:''}</div>
+                </div>
+              ))}
+              {showGcal&&allMonthGcal.map(e=>(
+                <div key={e.id} style={{padding:'10px 0',borderBottom:'1px solid #d8c8a0'}}>
+                  <div style={{display:'flex',gap:6,alignItems:'center',marginBottom:4}}>
+                    <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,background:'#3860D0',color:'#fff',padding:'2px 5px',borderRadius:2}}>📅 GCAL</span>
+                    <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888'}}>{e.date}</span>
+                    {e.time&&<span style={{fontSize:11,color:'#3860D0',fontWeight:600}}>🕐 {e.time}</span>}
+                  </div>
+                  <div style={{fontWeight:700,fontSize:14,color:'#181018'}}>{e.title}</div>
+                  {e.location&&<div style={{color:'#888',fontSize:12}}>📍 {e.location}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   CUSTOMERS
+   ══════════════════════════════════════════ */
+function CustomersList({customers,setCustomers,jobs,onNav}){
+  const[search,setSearch]=useState('');
+  const[showAdd,setShowAdd]=useState(false);
+  const[form,setForm]=useState({name:'',type:'B2C',phone:'',lineId:'',taxId:'',address:''});
+  const stats=useCallback(cid=>{const cj=jobs.filter(j=>j.customerId===cid);return{count:cj.length,total:cj.reduce((s,j)=>s+j.totalAmount,0)};},[jobs]);
+  const filtered=[...customers].filter(c=>c.name.toLowerCase().includes(search.toLowerCase())||(c.phone||'').includes(search)).sort((a,b)=>stats(b.id).total-stats(a.id).total);
+
+  return(
+    <div className="screen">
+      <TopBar title={`TRAINERS`} onAdd={()=>setShowAdd(true)}/>
+      <div style={{padding:'0 16px'}}>
+        <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#888',marginBottom:8}}>{customers.length} TRAINERS REGISTERED</div>
+        <input placeholder="🔍 ค้นหา ชื่อ · เบอร์ · LINE" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:12}}/>
+        {filtered.map(c=>{
+          const{count,total}=stats(c.id);const pt=POKE_TYPES[c.type]||POKE_TYPES.B2C;
+          const init=c.name.trim().split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase()||c.name.slice(0,2).toUpperCase();
+          return(
+            <div key={c.id} className="job-card" onClick={()=>onNav('customerDetail',c)} style={{display:'flex',alignItems:'center',gap:12}}>
+              <div style={{width:44,height:44,borderRadius:4,background:pt.bg,border:`3px solid ${pt.color}`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Press Start 2P',monospace",fontWeight:700,color:pt.color,fontSize:12,flexShrink:0}}>
+                {init}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div className="row" style={{gap:6,flexWrap:'wrap',marginBottom:2}}>
+                  <span style={{fontWeight:700,fontSize:14}}>{c.name}</span>
+                  <TypeBadge type={c.type}/>
+                </div>
+                <div style={{color:'#888',fontSize:12}}>{count} quests · {fc(total)}</div>
+              </div>
+              <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#FFD700',flexShrink:0}}>{shortK(total)}</div>
+            </div>
+          );
+        })}
+        {filtered.length===0&&<div style={{textAlign:'center',padding:40,fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#888',lineHeight:2}}>NO TRAINERS YET</div>}
+      </div>
+      {showAdd&&(
+        <ModalSheet title="NEW TRAINER" onClose={()=>setShowAdd(false)}>
+          <div className="g2" style={{marginBottom:14}}>
+            {Object.entries(POKE_TYPES).map(([k,v])=>(
+              <button key={k} onClick={()=>setForm(f=>({...f,type:k}))}
+                style={{padding:10,borderRadius:4,border:`3px solid ${form.type===k?v.color:'#ccc'}`,background:form.type===k?v.bg:'#fafafa',cursor:'pointer',textAlign:'left',fontFamily:'inherit',boxShadow:form.type===k?`3px 3px 0 ${v.color}`:'none'}}>
+                <div style={{fontSize:18}}>{v.icon}</div>
+                <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#181018'}}>{v.label}</div>
+                <div style={{fontSize:11,color:'#555',fontWeight:600}}>{v.name}</div>
+                <div style={{fontSize:9,color:'#888',marginTop:2}}>{v.desc}</div>
+              </button>
+            ))}
+          </div>
+          <div className="field-label">ชื่อ *</div>
+          <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="ชื่อเต็ม"/>
+          <div className="field-label">เบอร์โทร</div>
+          <input value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="08x-xxx-xxxx"/>
+          <div className="field-label">LINE ID</div>
+          <input value={form.lineId} onChange={e=>setForm(f=>({...f,lineId:e.target.value}))} placeholder="@lineid"/>
+          {(form.type==='B2B'||form.type==='Gov')&&(
+            <><div className="field-label">เลขผู้เสียภาษี</div><input value={form.taxId} onChange={e=>setForm(f=>({...f,taxId:e.target.value}))} placeholder="13 หลัก"/></>
+          )}
+          <div className="field-label">ที่อยู่</div>
+          <textarea value={form.address} onChange={e=>setForm(f=>({...f,address:e.target.value}))} rows={2} style={{resize:'none'}}/>
+          <div style={{display:'flex',gap:8,marginTop:14}}>
+            <button className="px-btn px-btn-red" onClick={()=>{if(!form.name)return;setCustomers(p=>[...p,{id:gid(),...form}]);setShowAdd(false);setForm({name:'',type:'B2C',phone:'',lineId:'',taxId:'',address:''});}} style={{flex:2,fontSize:8}}>✓ REGISTER</button>
+            <button className="px-btn px-btn-light" onClick={()=>setShowAdd(false)} style={{flex:1,fontSize:8}}>✕</button>
+          </div>
+        </ModalSheet>
+      )}
+    </div>
+  );
+}
+
+function CustomerDetail({customer,jobs,payments,onBack}){
+  if(!customer)return null;
+  const pt=POKE_TYPES[customer.type]||POKE_TYPES.B2C;
+  const cj=jobs.filter(j=>j.customerId===customer.id);
+  const total=cj.reduce((s,j)=>s+j.totalAmount,0);
+  const paid=payments.filter(p=>cj.some(j=>j.id===p.jobId)).reduce((s,p)=>s+p.amount,0);
+  const init=customer.name.trim().split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase()||customer.name.slice(0,2).toUpperCase();
+  return(
+    <div className="screen">
+      <TopBar title="TRAINER INFO" onBack={onBack}/>
+      <div style={{padding:'0 16px'}}>
+        <div className="px-card" style={{marginBottom:12,padding:14}}>
+          <div className="row" style={{gap:14,marginBottom:14}}>
+            <div style={{width:56,height:56,borderRadius:4,background:pt.bg,border:`3px solid ${pt.color}`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Press Start 2P',monospace",fontSize:16,color:pt.color,flexShrink:0}}>{init}</div>
+            <div>
+              <div style={{fontWeight:800,fontSize:16,color:'#181018',marginBottom:6}}>{customer.name}</div>
+              <TypeBadge type={customer.type}/>
+            </div>
+          </div>
+          {customer.phone&&<div style={{fontSize:13,color:'#555',marginBottom:4}}>📞 {customer.phone}</div>}
+          {customer.lineId&&<div style={{fontSize:13,color:'#555',marginBottom:4}}>💬 {customer.lineId}</div>}
+          {customer.taxId&&<div style={{fontSize:13,color:'#555',marginBottom:4}}>🧾 {customer.taxId}</div>}
+          {customer.address&&<div style={{fontSize:13,color:'#555'}}>📍 {customer.address}</div>}
+        </div>
+        <div className="g2" style={{marginBottom:12}}>
+          <KpiCard label="⚔️ QUESTS" value={cj.length} color="#FFD700"/>
+          <KpiCard label="💰 TOTAL" value={fc(total)} color="#00C830"/>
+        </div>
+        {cj.length>0&&(
+          <div className="px-card" style={{padding:14}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:10}}>QUEST HISTORY</div>
+            {cj.map(j=>(
+              <div key={j.id} className="row-bet" style={{padding:'10px 0',borderBottom:'1px solid #d8c8a0'}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13}}>{j.jobType}</div>
+                  <div style={{color:'#aaa',fontSize:12}}>{fd(j.date)}{j.location?` · ${j.location}`:''}</div>
+                </div>
+                <div style={{textAlign:'right'}}>
+                  <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:'#181018'}}>{fc(j.totalAmount)}</div>
+                  <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:j.status==='completed'?'#00C830':'#FFD700',marginTop:2}}>{j.status==='completed'?'DONE':'ACTIVE'}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   TAX REPORT
+   ══════════════════════════════════════════ */
+function TaxReport({jobs,payments,quotes}){
+  const[yr,setYr]=useState(new Date().getFullYear());
+  const[filter,setFilter]=useState('all');
+  const yj=jobs.filter(j=>new Date(j.date).getFullYear()===yr&&(filter==='all'||j.customerType===filter));
+  const yp=payments.filter(p=>{const j=jobs.find(x=>x.id===p.jobId);return j&&new Date(j.date).getFullYear()===yr&&(filter==='all'||j.customerType===filter);});
+  const yq=quotes.filter(q=>{const j=jobs.find(x=>x.id===q.jobId);return j&&new Date(j.date).getFullYear()===yr&&(filter==='all'||j.customerType===filter);});
+  const tSales=yj.reduce((s,j)=>s+j.totalAmount,0);
+  const tRecv=yp.reduce((s,p)=>s+p.amount,0);
+  const tVat=yq.filter(q=>q.useVat).reduce((s,q)=>s+q.items.reduce((a,i)=>a+i.amount,0)*VAT,0);
+  const tWht=yq.filter(q=>q.useWht).reduce((s,q)=>s+q.items.reduce((a,i)=>a+i.amount,0)*WHT,0);
+
+  const exportJSON=()=>{
+    const blob=new Blob([JSON.stringify({year:yr+543,summary:{tSales,tRecv,tVat,tWht},jobs:yj,payments:yp,quotes:yq},null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pixory-${yr+543}.json`;a.click();
+  };
+
+  return(
+    <div className="screen">
+      <div style={{padding:'14px 16px 8px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span className="sec-title" style={{margin:0}}>📊 GUILD HALL</span>
+        <div className="row" style={{gap:6}}>
+          <button onClick={()=>setYr(y=>y-1)} className="icon-btn" style={{width:28,height:28,fontSize:14}}>‹</button>
+          <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#FFD700',minWidth:60,textAlign:'center'}}>{yr+543}</span>
+          <button onClick={()=>setYr(y=>y+1)} className="icon-btn" style={{width:28,height:28,fontSize:14}}>›</button>
+        </div>
+      </div>
+      <div style={{padding:'0 16px'}}>
+        <div className="g2" style={{marginBottom:12}}>
+          <KpiCard label="📦 ยอดขาย" value={fc(tSales)}/>
+          <KpiCard label="💰 รับแล้ว" value={fc(tRecv)} color="#00C830"/>
+          <KpiCard label="🧾 VAT" value={fc(tVat)} color="#3860D0"/>
+          <KpiCard label="📋 WHT" value={fc(tWht)} color="#F08030"/>
+        </div>
+        <div className="pill-row" style={{marginBottom:12}}>
+          {[['all','ALL'],['B2C','NORMAL'],['B2B','FIRE'],['Gov','WATER']].map(([k,l])=>(
+            <button key={k} className={`pill ${filter===k?'pill-active':'pill-inactive'}`} onClick={()=>setFilter(k)} style={{fontFamily:"'Press Start 2P',monospace",fontSize:7}}>{l}</button>
+          ))}
+        </div>
+        <button className="px-btn px-btn-red" onClick={exportJSON} style={{marginBottom:12,fontSize:8}}>💾 EXPORT DATA</button>
+        {tVat>0&&(
+          <div className="px-card" style={{marginBottom:12,padding:14}}>
+            <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:10}}>ภ.พ.30 · VAT REPORT</div>
+            {Array(12).fill(0).map((_, i)=>{
+              const v=yq.filter(q=>q.useVat).reduce((s,q)=>{const j=jobs.find(x=>x.id===q.jobId);return j&&new Date(j.date).getMonth()===i?s+q.items.reduce((a,x)=>a+x.amount,0)*VAT:s;},0);
+              return v>0?(
+                <div key={i} className="row-bet" style={{padding:'6px 0',borderBottom:'1px solid #d8c8a0',fontSize:13}}>
+                  <span style={{color:'#555'}}>{TH_MS[i]} {yr+543}</span>
+                  <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:9}}>{fc(v)}</span>
+                </div>
+              ):null;
+            })}
+          </div>
+        )}
+        {/* PIT Helper */}
+        <div className="px-card" style={{padding:14,border:'3px solid #C8A020',boxShadow:'4px 4px 0 #C8A020'}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:4}}>🧮 PIT HELPER</div>
+          <div style={{fontSize:11,color:'#888',marginBottom:12}}>ภ.ง.ด.90/94 · คำนวณภาษีปลายปี</div>
+          {[['รายได้รวม',tSales,'#181018'],['หัก 60%',-(tSales*.6),'#38A050'],['เงินได้สุทธิ',tSales*.4,'#CC0000']].map(([l,v,c])=>(
+            <div key={l} className="row-bet" style={{marginBottom:6,fontSize:13}}>
+              <span style={{color:'#555'}}>{l}</span>
+              <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:9,color:c}}>{v<0?`-${fc(-v)}`:fc(v)}</span>
+            </div>
+          ))}
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#aaa',marginTop:8,lineHeight:1.8}}>* ประมาณการเท่านั้น</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   SETTINGS (Firebase Edition)
+   ══════════════════════════════════════════ */
+function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomers,setQuotes,setPayments,onBack,onLogout,isDemoMode}){
+  const[configText,setConfigText]=useLS('px_firebase_config','');
+  const[showConfig,setShowConfig]=useState(false);
+
+  const exportAll=()=>{
+    const blob=new Blob([JSON.stringify({v:3,exportedAt:new Date().toISOString(),jobs,customers,quotes,payments},null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`bestpart-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  };
+  const importAll=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.jobs)setJobs(d.jobs);if(d.customers)setCustomers(d.customers);if(d.quotes)setQuotes(d.quotes);if(d.payments)setPayments(d.payments);alert('Import สำเร็จ ✓');}catch{alert('ไฟล์ไม่ถูกต้อง');}};r.readAsText(f);
+  };
+  const clearAll=()=>{if(!confirm('ลบข้อมูลทั้งหมด?'))return;setJobs([]);setCustomers([]);setQuotes([]);setPayments([]);alert('ล้างแล้ว');};
+
+  return(
+    <div className="screen">
+      <TopBar title="SETTINGS" onBack={onBack}/>
+      <div style={{padding:'0 16px'}}>
+
+        {/* Profile */}
+        {user&&(
+          <div className="px-card-dark" style={{padding:14,marginBottom:12,display:'flex',alignItems:'center',gap:12}}>
+            {user.picture&&<img src={user.picture} style={{width:44,height:44,borderRadius:4,border:'2px solid #FFD700'}} alt=""/>}
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#FFD700',marginBottom:3}}>{(user.name||'').split(' ')[0]}</div>
+              <div style={{fontSize:11,color:'#888',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user.email}</div>
+            </div>
+            <button className="px-btn px-btn-dark" style={{width:'auto',padding:'8px 12px',fontSize:7,flexShrink:0}} onClick={onLogout}>LOGOUT</button>
+          </div>
+        )}
+
+        {/* Firebase Status */}
+        <div className="px-card" style={{marginBottom:12,padding:14,border:`3px solid ${window.__db?'#38A050':'#CC0000'}`,boxShadow:`4px 4px 0 ${window.__db?'#38A050':'#CC0000'}`}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:window.__db?'#38A050':'#CC0000',marginBottom:6}}>
+            {isDemoMode?'⚡ DEMO MODE':(window.__db?'🔥 FIREBASE CONNECTED':'⚠ ไม่ได้เชื่อมต่อ Firebase')}
+          </div>
+          <div style={{fontSize:11,color:'#888',marginBottom:10}}>
+            {isDemoMode?'ข้อมูลไม่ sync — ใช้ทดลองเท่านั้น':
+             window.__db?'ข้อมูลบันทึกบน Cloud อัตโนมัติ รองรับหลายคน':'กรุณาตั้งค่า Firebase Config'}
+          </div>
+          {!isDemoMode&&<button className="px-btn px-btn-dark" style={{fontSize:7}} onClick={()=>setShowConfig(true)}>⚙ แก้ไข Firebase Config</button>}
+        </div>
+
+        {/* iPhone install */}
+        <div className="px-card" style={{marginBottom:12,padding:14,border:'3px solid #3860D0',boxShadow:'4px 4px 0 #3860D0'}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#3860D0',marginBottom:8}}>📱 ติดตั้งบน iPhone</div>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#555',lineHeight:2.5}}>
+            1. เปิดใน Safari<br/>
+            2. แตะปุ่ม Share (□↑)<br/>
+            3. เลือก Add to Home Screen<br/>
+            4. กด Add ✓
+          </div>
+        </div>
+
+        {/* Backup */}
+        <div className="px-card" style={{marginBottom:12,padding:14}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:4}}>💾 BACKUP DATA</div>
+          <div style={{fontSize:11,color:'#888',marginBottom:10}}>Export JSON สำรองข้อมูลไว้เสมอ</div>
+          <button className="px-btn px-btn-red" onClick={exportAll} style={{marginBottom:8,fontSize:8}}>⬇️ EXPORT JSON</button>
+          <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'12px 16px',background:'#e0d0b0',borderRadius:4,border:'3px dashed #888',cursor:'pointer',fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#555'}}>
+            ⬆️ IMPORT JSON
+            <input type="file" accept=".json" onChange={importAll} style={{display:'none'}}/>
+          </label>
+        </div>
+
+        {/* Danger */}
+        <div className="px-card" style={{marginBottom:12,padding:14,border:'3px solid #CC0000'}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#CC0000',marginBottom:8}}>⚠️ DANGER ZONE</div>
+          <button onClick={clearAll} style={{padding:'12px',borderRadius:4,border:'3px solid #CC0000',background:'#fff0f0',color:'#CC0000',cursor:'pointer',width:'100%',fontFamily:"'Press Start 2P',monospace",fontSize:8,letterSpacing:.5}}>
+            🗑️ CLEAR ALL DATA
+          </button>
+        </div>
+
+        <div style={{textAlign:'center',fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#555',lineHeight:2}}>BESTPART GYM v3.0<br/>FIREBASE EDITION</div>
+      </div>
+
+      {showConfig&&(
+        <ModalSheet title="FIREBASE CONFIG" onClose={()=>setShowConfig(false)}>
+          <div style={{fontSize:11,color:'#888',marginBottom:10,lineHeight:1.6}}>วาง Firebase Config JSON ด้านล่าง แล้วกด Save — App จะ reload อัตโนมัติ</div>
+          <textarea value={configText} onChange={e=>setConfigText(e.target.value)} rows={7}
+            style={{resize:'none',fontSize:11,fontFamily:'monospace',marginBottom:12}}/>
+          <button className="px-btn px-btn-red" onClick={()=>{setShowConfig(false);window.location.reload();}}>🔥 SAVE & RELOAD</button>
+        </ModalSheet>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   BOTTOM NAV
+   ══════════════════════════════════════════ */
+const MAIN=['dashboard','jobs','quotes','calendar','customers','tax'];
+const NAV_ITEMS=[
+  {id:'dashboard',lb:'HOME',   renderIcon:()=><span style={{fontSize:20}}>🏠</span>},
+  {id:'jobs',     lb:'QUEST',  renderIcon:()=><img src="https://img.pokemondb.net/sprites/sword-shield/icon/squirtle.png" style={{width:32,height:24,imageRendering:'pixelated'}} alt="Quest"/>},
+  {id:'calendar', lb:'MAP',    renderIcon:()=><span style={{fontSize:20}}>📅</span>},
+  {id:'customers',lb:'TRAINER',renderIcon:()=><img src="https://img.pokemondb.net/sprites/sword-shield/icon/pikachu.png" style={{width:32,height:24,imageRendering:'pixelated'}} alt="Trainer"/>},
+  {id:'quotes',   lb:'SHOP',   renderIcon:()=><span style={{fontSize:20}}>📜</span>},
+  {id:'tax',      lb:'GUILD',  renderIcon:()=><span style={{fontSize:20}}>📊</span>},
+];
+function BottomNav({screen,onNav}){
+  if(!MAIN.includes(screen))return null;
+  return(
+    <div className="bottom-nav">
+      {NAV_ITEMS.map(({id,lb,renderIcon})=>(
+        <div key={id} className={`nav-item${screen===id?' active':''}`} onClick={()=>onNav(id)}>
+          <span className="nav-icon">{renderIcon()}</span>
+          <span>{lb}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   APP ROOT (Firebase Edition)
+   ══════════════════════════════════════════ */
+function App(){
+  const[uid,setUid]=useState(null);
+  const[user,setUser]=useState(null);
+  const[accessToken,setAccessToken]=useState(null);
+  const[isLoggedIn,setIsLoggedIn]=useState(false);
+  const[isDemoMode,setIsDemoMode]=useState(false);
+  const[loadingAuth,setLoadingAuth]=useState(!!window.__auth);
+  const[screen,setScreen]=useState('dashboard');
+  const[ctx,setCtx]=useState({job:null,customer:null,quote:null});
+
+  /* Firebase Auth state listener */
+  useEffect(()=>{
+    if(!window.__auth){setLoadingAuth(false);return;}
+    const unsub=window.__auth.onAuthStateChanged(u=>{
+      setLoadingAuth(false);
+      if(u&&!isDemoMode){
+        setUid(u.uid);
+        setUser({name:u.displayName,email:u.email,picture:u.photoURL,uid:u.uid});
+        setIsLoggedIn(true);
+      }
+    });
+    return()=>unsub();
+  },[]);
+
+  /* Firestore per-user data (or demo data when isDemoMode) */
+  const fsUid=isDemoMode?null:uid;
+  const[jobs,setJobs]=useFirestore(fsUid,'jobs',isDemoMode?DEMO_J:[]);
+  const[customers,setCustomers]=useFirestore(fsUid,'customers',isDemoMode?DEMO_C:[]);
+  const[quotes,setQuotes]=useFirestore(fsUid,'quotes',isDemoMode?DEMO_Q:[]);
+  const[payments,setPayments]=useFirestore(fsUid,'payments',isDemoMode?DEMO_P:[]);
+
+  const nav=(s,data)=>{
+    setScreen(s);
+    if(data){
+      if(s==='jobDetail')setCtx(c=>({...c,job:data}));
+      else if(s==='customerDetail')setCtx(c=>({...c,customer:data}));
+      else if(s==='quoteDetail')setCtx(c=>({...c,quote:data}));
+    }
+  };
+
+  const login=(data)=>{
+    setUser(data.user);setUid(data.user.uid);
+    if(data.accessToken)setAccessToken(data.accessToken);
+    setIsLoggedIn(true);
+  };
+  const demo=()=>{setIsDemoMode(true);setIsLoggedIn(true);};
+  const logout=async()=>{
+    if(window.__auth&&!isDemoMode){try{await window.__auth.signOut();}catch(e){}}
+    setUid(null);setUser(null);setAccessToken(null);
+    setIsLoggedIn(false);setIsDemoMode(false);setScreen('dashboard');
+  };
+
+  const liveJob=ctx.job?jobs.find(j=>j.id===ctx.job.id)||ctx.job:null;
+
+  /* Loading spinner ขณะรอ Firebase Auth */
+  if(loadingAuth)return(
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100vh',gap:16}}>
+      <div className="pokeball-anim">
+        <svg width="64" height="64" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="96" fill="#CC0000" stroke="#181018" strokeWidth="8"/>
+          <path d="M4,100 A96,96,0,0,1,196,100" fill="#F8F8F8"/>
+          <rect x="4" y="88" width="192" height="24" fill="#181018"/>
+          <circle cx="100" cy="100" r="24" fill="#F8F8F8" stroke="#181018" strokeWidth="8"/>
+        </svg>
+      </div>
+      <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#888'}}>LOADING...</div>
+    </div>
+  );
+
+  if(!isLoggedIn)return <LoginScreen onLogin={login} onDemo={demo}/>;
+
+  const render=()=>{
+    switch(screen){
+      case 'dashboard':      return <Dashboard jobs={jobs} payments={payments} user={user} onNav={nav} onLogout={logout}/>;
+      case 'jobs':           return <JobsList jobs={jobs} payments={payments} setJobs={setJobs} customers={customers} accessToken={accessToken} onNav={nav}/>;
+      case 'jobDetail':      return <JobDetail job={liveJob} jobs={jobs} setJobs={setJobs} payments={payments} setPayments={setPayments} quotes={quotes} setQuotes={setQuotes} customers={customers} accessToken={accessToken} onBack={()=>setScreen('jobs')} onNav={nav}/>;
+      case 'quotes':         return <QuotesList quotes={quotes} onNav={nav}/>;
+      case 'quoteDetail':    return <QuoteDetail quote={ctx.quote} onBack={()=>setScreen(ctx.job?'jobDetail':'quotes')}/>;
+      case 'calendar':       return <CalendarView jobs={jobs} setJobs={setJobs} accessToken={accessToken} onNav={nav}/>;
+      case 'customers':      return <CustomersList customers={customers} setCustomers={setCustomers} jobs={jobs} onNav={nav}/>;
+      case 'customerDetail': return <CustomerDetail customer={ctx.customer} jobs={jobs} payments={payments} onBack={()=>setScreen('customers')}/>;
+      case 'tax':            return <TaxReport jobs={jobs} payments={payments} quotes={quotes}/>;
+      case 'settings':       return <SettingsScreen user={user} jobs={jobs} customers={customers} quotes={quotes} payments={payments} setJobs={setJobs} setCustomers={setCustomers} setQuotes={setQuotes} setPayments={setPayments} onBack={()=>setScreen('dashboard')} onLogout={logout} isDemoMode={isDemoMode}/>;
+      default: return null;
+    }
+  };
+
+  return(
+    <div className="app">
+      {isDemoMode&&<div style={{background:'#C8A020',color:'#181018',textAlign:'center',fontFamily:"'Press Start 2P',monospace",fontSize:6,padding:'6px',position:'sticky',top:0,zIndex:99,letterSpacing:.5}}>⚡ DEMO MODE — ข้อมูลไม่ได้บันทึก Cloud</div>}
+      {render()}
+      <BottomNav screen={screen} onNav={nav}/>
+      {MAIN.includes(screen)&&(
+        <button onClick={()=>setScreen('settings')} style={{position:'fixed',top:14,right:'calc(50% - 207px)',zIndex:99,background:'none',border:'none',color:'#666',fontSize:18,cursor:'pointer',fontFamily:"'Press Start 2P',monospace"}}>⚙</button>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
