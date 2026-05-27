@@ -1418,7 +1418,7 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
   const[gcalLoading,setGcalLoading]=useState(false);
   const[showGcal,setShowGcal]=useState(true);
   const[showEmbed,setShowEmbed]=useState(false);
-  const embedUrl=localStorage.getItem('px_gcal_embed')||'';
+  const embedUrl=localStorage.getItem('px_gcal_embed')||'https://calendar.google.com/calendar/embed?src=bestpart.team%40gmail.com&ctz=Asia%2FBangkok&mode=MONTH&bgcolor=%23121212&color=%2338A050&showTitle=0&showNav=1&showPrint=0&showTabs=1&showCalendars=0';
 
   const deleteJob=async(job)=>{
     if(!confirm('ลบ Quest นี้?'))return;
@@ -1868,7 +1868,7 @@ function TaxReport({jobs,payments,quotes}){
 function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomers,setQuotes,setPayments,onBack,onLogout,isDemoMode}){
   const[configText,setConfigText]=useLS('px_firebase_config','');
   const[showConfig,setShowConfig]=useState(false);
-  const[embedUrl,setEmbedUrl]=useLS('px_gcal_embed','');
+  const[embedUrl,setEmbedUrl]=useLS('px_gcal_embed','https://calendar.google.com/calendar/embed?src=bestpart.team%40gmail.com&ctz=Asia%2FBangkok&mode=MONTH&bgcolor=%23121212&color=%2338A050&showTitle=0&showNav=1&showPrint=0&showTabs=1&showCalendars=0');
   const[embedSaved,setEmbedSaved]=useState(false);
   const saveEmbed=()=>{setEmbedSaved(true);setTimeout(()=>setEmbedSaved(false),2000);};
 
