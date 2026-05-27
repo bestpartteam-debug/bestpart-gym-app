@@ -150,6 +150,13 @@ input,select,textarea{
   font-family:system-ui,sans-serif;
   color:var(--border);
   box-shadow:inset 2px 2px 0 rgba(0,0,0,.15);
+  box-sizing:border-box;
+  max-width:100%;min-width:0;
+}
+input[type="datetime-local"]{
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;max-width:100%;
 }
 input:focus,select:focus,textarea:focus{
   border-color:var(--blue);
