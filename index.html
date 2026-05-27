@@ -373,15 +373,26 @@ input:focus,select:focus,textarea:focus{
 <div id="root"></div>
 
 <script>
-/* ══ FIREBASE AUTO-INIT (from saved config) ══ */
+/* ══ FIREBASE AUTO-INIT ══ */
 (function(){
   try{
-    var cfg=JSON.parse(localStorage.getItem('px_firebase_config')||'null');
-    if(cfg&&cfg.apiKey){
-      if(!firebase.apps.length)firebase.initializeApp(cfg);
-      window.__auth=firebase.auth();
-      window.__db=firebase.firestore();
-    }
+    // Hard-coded config (bestpart-gym project)
+    var DEFAULT_CFG={
+      apiKey:"AIzaSyDTWzONmi98pvw9m-rL3cKNxZM6wwWIhHo",
+      authDomain:"bestpart-gym.firebaseapp.com",
+      projectId:"bestpart-gym",
+      storageBucket:"bestpart-gym.firebasestorage.app",
+      messagingSenderId:"170637272399",
+      appId:"1:170637272399:web:b9967d9c8c1576f7c3d13a",
+      measurementId:"G-QBKC2QWWT5"
+    };
+    var saved=JSON.parse(localStorage.getItem('px_firebase_config')||'null');
+    var cfg=(saved&&saved.apiKey)?saved:DEFAULT_CFG;
+    // Save to localStorage so manual setup screen also reflects it
+    localStorage.setItem('px_firebase_config',JSON.stringify(cfg));
+    if(!firebase.apps.length)firebase.initializeApp(cfg);
+    window.__auth=firebase.auth();
+    window.__db=firebase.firestore();
   }catch(e){console.warn('Firebase init:',e);}
 })();
 </script>
