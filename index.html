@@ -453,6 +453,10 @@ const fc=n=>'฿'+(n||0).toLocaleString('th-TH',{minimumFractionDigits:0,maximum
 const fd=d=>{if(!d)return'';const t=new Date(d);return`${t.getDate()} ${TH_MS[t.getMonth()]} ${t.getFullYear()+543}`;};
 const fdk=d=>{if(!d)return'';const t=new Date(d);return`${t.getDate()} ${TH_M[t.getMonth()]} ${t.getFullYear()+543}`;};
 const gid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+// Local datetime string for datetime-local input (YYYY-MM-DDTHH:MM)
+const nowDT=()=>{const d=new Date(),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;};
+// Normalize any date string to datetime-local format
+const toDateTimeLocal=s=>{if(!s)return nowDT();return s.length===10?s+'T00:00':s.slice(0,16);};
 const shortK=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(0)+'K':String(n);
 
 /* localStorage hook — ใช้สำหรับ settings เท่านั้น */
@@ -528,12 +532,13 @@ const DEMO_Q=[
    ══════════════════════════════════════════ */
 async function calendarCreateEvent(accessToken,job){
   try{
+    const dateOnly=(job.date||'').slice(0,10); // always YYYY-MM-DD for Google API
     const event={
-      summary:`${job.customerName}${job.location?' · '+job.location:''}${job.date?' · '+job.date:''}`,
+      summary:`${job.customerName}${job.location?' · '+job.location:''}${dateOnly?' · '+dateOnly:''}`,
       location:job.location||'',
       description:`ประเภท: ${job.jobType}\nราคา: ${fc(job.totalAmount)}${job.notes?'\n'+job.notes:''}`,
-      start:{date:job.date},
-      end:{date:job.date},
+      start:{date:dateOnly},
+      end:{date:dateOnly},
       colorId:'11',
       reminders:{useDefault:false,overrides:[{method:'popup',minutes:1440}]},
     };
@@ -856,14 +861,14 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
   const[editSyncing,setEditSyncing]=useState(false);
   const[form,setForm]=useState({
     customerType:'B2C',customerId:'',customerName:'',
-    jobType:'Wedding',date:new Date().toISOString().slice(0,10),
+    jobType:'Wedding',date:nowDT(),
     location:'',totalAmount:'',notes:'',syncCal:false,
   });
   const[editForm,setEditForm]=useState({customerType:'B2C',customerName:'',jobType:'Wedding',date:'',location:'',totalAmount:'',notes:''});
 
   const startEdit=(job)=>{
     setEditingJob(job);
-    setEditForm({customerType:job.customerType,customerName:job.customerName,jobType:job.jobType,date:job.date,location:job.location||'',totalAmount:String(job.totalAmount),notes:job.notes||''});
+    setEditForm({customerType:job.customerType,customerName:job.customerName,jobType:job.jobType,date:toDateTimeLocal(job.date),location:job.location||'',totalAmount:String(job.totalAmount),notes:job.notes||''});
   };
   const saveEdit=async()=>{
     if(!editForm.customerName||!editForm.totalAmount)return;
@@ -899,7 +904,7 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
     }
     setJobs(p=>[...p,newJob]);
     setSyncing(false);setShowAdd(false);
-    setForm({customerType:'B2C',customerId:'',customerName:'',jobType:'Wedding',date:new Date().toISOString().slice(0,10),location:'',totalAmount:'',notes:'',syncCal:false});
+    setForm({customerType:'B2C',customerId:'',customerName:'',jobType:'Wedding',date:nowDT(),location:'',totalAmount:'',notes:'',syncCal:false});
   };
 
   return(
