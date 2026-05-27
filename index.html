@@ -534,9 +534,9 @@ async function calendarCreateEvent(accessToken,job){
   try{
     const dateOnly=(job.date||'').slice(0,10); // always YYYY-MM-DD for Google API
     const event={
-      summary:`${job.customerName}${job.location?' · '+job.location:''}${dateOnly?' · '+dateOnly:''}`,
+      summary:`${job.customerName}${job.location?' · '+job.location:''}`,
       location:job.location||'',
-      description:`ประเภท: ${job.jobType}\nราคา: ${fc(job.totalAmount)}${job.notes?'\n'+job.notes:''}`,
+      description:`ประเภท: ${job.jobType}\nวันที่: ${dateOnly}\nราคา: ${fc(job.totalAmount)}${job.notes?'\n'+job.notes:''}`,
       start:{date:dateOnly},
       end:{date:dateOnly},
       colorId:'11',
@@ -547,9 +547,14 @@ async function calendarCreateEvent(accessToken,job){
       headers:{'Authorization':`Bearer ${accessToken}`,'Content-Type':'application/json'},
       body:JSON.stringify(event),
     });
-    if(r.ok){const d=await r.json();return d.id;}
-    return null;
-  }catch{return null;}
+    if(r.ok){const d=await r.json();return{id:d.id,ok:true};}
+    const errText=await r.text();
+    console.error('GCal error',r.status,errText);
+    return{id:null,ok:false,status:r.status,err:errText};
+  }catch(e){
+    console.error('GCal fetch error',e);
+    return{id:null,ok:false,err:e.message};
+  }
 }
 
 async function calendarDeleteEvent(accessToken,eventId){
@@ -859,6 +864,8 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
   const[syncing,setSyncing]=useState(false);
   const[editingJob,setEditingJob]=useState(null);
   const[editSyncing,setEditSyncing]=useState(false);
+  const[calToast,setCalToast]=useState(null); // {ok:bool, msg:str}
+  const showCalToast=(ok,msg)=>{setCalToast({ok,msg});setTimeout(()=>setCalToast(null),4000);};
   const[form,setForm]=useState({
     customerType:'B2C',customerId:'',customerName:'',
     jobType:'Wedding',date:nowDT(),
@@ -876,8 +883,10 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
     const updated={...editingJob,...editForm,totalAmount:parseFloat(editForm.totalAmount)||0};
     if(editingJob.calEventId&&accessToken){
       await calendarDeleteEvent(accessToken,editingJob.calEventId);
-      const eid=await calendarCreateEvent(accessToken,updated);
-      updated.calEventId=eid||null;
+      const res=await calendarCreateEvent(accessToken,updated);
+      updated.calEventId=res.ok?res.id:null;
+      if(res.ok)showCalToast(true,'📅 อัปเดต Google Calendar แล้ว!');
+      else showCalToast(false,`❌ Sync ล้มเหลว (${res.status||'network error'})`);
     }
     setJobs(p=>p.map(j=>j.id===editingJob.id?updated:j));
     setEditingJob(null);setEditSyncing(false);
@@ -898,9 +907,13 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
       status:'active',notes:form.notes,calEventId:null,
     };
     // Sync to Google Calendar if requested
-    if(form.syncCal&&accessToken){
-      const eid=await calendarCreateEvent(accessToken,newJob);
-      if(eid)newJob.calEventId=eid;
+    if(form.syncCal){
+      if(!accessToken){showCalToast(false,'กรุณา Login ด้วย Google ก่อนใช้ Calendar Sync');}
+      else{
+        const res=await calendarCreateEvent(accessToken,newJob);
+        if(res.ok){newJob.calEventId=res.id;showCalToast(true,'📅 บันทึกใน Google Calendar แล้ว!');}
+        else{showCalToast(false,`❌ Sync ล้มเหลว (${res.status||'network error'})`);}
+      }
     }
     setJobs(p=>[...p,newJob]);
     setSyncing(false);setShowAdd(false);
@@ -909,6 +922,15 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
 
   return(
     <div className="screen">
+      {/* Calendar sync toast */}
+      {calToast&&(
+        <div style={{position:'fixed',top:16,left:'50%',transform:'translateX(-50%)',zIndex:9999,
+          background:calToast.ok?'#1a4a1a':'#4a1a1a',border:`2px solid ${calToast.ok?'#00C830':'#E82020'}`,
+          borderRadius:6,padding:'10px 16px',color:calToast.ok?'#00C830':'#E82020',
+          fontFamily:'system-ui,sans-serif',fontSize:13,whiteSpace:'nowrap',boxShadow:'0 4px 12px rgba(0,0,0,.5)'}}>
+          {calToast.msg}
+        </div>
+      )}
       <TopBar title="QUEST BOARD" titleTh="บอร์ดคิวงาน" onAdd={()=>setShowAdd(true)} addLabel="ลงคิวงาน"/>
       <div style={{padding:'0 16px'}}>
         <input placeholder="🔍 ค้นหา ชื่อ · ประเภทงาน" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:10}}/>
@@ -1395,6 +1417,8 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
   const[gcalEvents,setGcalEvents]=useState([]);
   const[gcalLoading,setGcalLoading]=useState(false);
   const[showGcal,setShowGcal]=useState(true);
+  const[showEmbed,setShowEmbed]=useState(false);
+  const embedUrl=localStorage.getItem('px_gcal_embed')||'';
 
   const deleteJob=async(job)=>{
     if(!confirm('ลบ Quest นี้?'))return;
@@ -1482,8 +1506,14 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
           <div style={{fontSize:10,color:'#aaa',marginTop:2,fontFamily:'system-ui,sans-serif'}}>ตารางงาน</div>
         </div>
         <div className="row" style={{gap:6}}>
-          {/* Toggle Google Calendar */}
-          {accessToken&&(
+          {/* Embed Google Calendar toggle */}
+          {embedUrl&&(
+            <button onClick={()=>setShowEmbed(s=>!s)} style={{background:showEmbed?'#1a4a1a':'var(--bg2)',border:`2px solid ${showEmbed?'#38A050':'rgba(255,255,255,.1)'}`,color:showEmbed?'#00C830':'#888',fontFamily:"'Press Start 2P',monospace",fontSize:6,padding:'4px 6px',borderRadius:3,cursor:'pointer',letterSpacing:.3}}>
+              {showEmbed?'🗺️ แอป':'📅 GCal'}
+            </button>
+          )}
+          {/* Toggle Google Calendar overlay */}
+          {accessToken&&!showEmbed&&(
             <button onClick={()=>setShowGcal(s=>!s)} style={{background:showGcal?'#1a3a6a':'var(--bg2)',border:`2px solid ${showGcal?'#3860D0':'rgba(255,255,255,.1)'}`,color:showGcal?'#6af':'#888',fontFamily:"'Press Start 2P',monospace",fontSize:6,padding:'4px 6px',borderRadius:3,cursor:'pointer',letterSpacing:.3}}>
               {gcalLoading?'..':showGcal?'📅 ON':'📅 OFF'}
             </button>
@@ -1497,7 +1527,14 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
         </div>
       </div>
 
-      <div className="px-card" style={{margin:'0 16px',padding:14}}>
+      {/* Google Calendar iFrame embed */}
+      {showEmbed&&embedUrl&&(
+        <div style={{margin:'0 16px',border:'3px solid #38A050',borderRadius:4,overflow:'hidden'}}>
+          <iframe src={embedUrl} style={{width:'100%',height:'calc(100vh - 180px)',border:'none',display:'block'}} title="Google Calendar"/>
+        </div>
+      )}
+
+      {!showEmbed&&<div className="px-card" style={{margin:'0 16px',padding:14}}>
         <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',textAlign:'center',marginBottom:6}}>
           {['อา','จ','อ','พ','พฤ','ศ','ส'].map(d=><div key={d} style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#888'}}>{d}</div>)}
         </div>
@@ -1535,10 +1572,10 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
             <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:6,color:'#555'}}>Login เพื่อดู Google Calendar</span>
           )}
         </div>
-      </div>
+      </div>}
 
-      {/* วันที่เลือก */}
-      {sel&&(
+      {/* วันที่เลือก + All month — ซ่อนเมื่อดู embed */}
+      {!showEmbed&&sel&&(
         <div style={{padding:'12px 16px 0'}}>
           <div className="px-card" style={{padding:14}}>
             <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#181018',marginBottom:10}}>
@@ -1582,7 +1619,7 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
       )}
 
       {/* ══ ALL MONTH QUESTS (ไม่ต้องคลิกวัน) ══ */}
-      {(()=>{
+      {!showEmbed&&(()=>{
         const allMonthJobs=[...jobs].filter(j=>{const d=new Date(j.date);return d.getFullYear()===yr&&d.getMonth()===mo;}).sort((a,b)=>new Date(a.date)-new Date(b.date));
         const allMonthGcal=[...gcalEvents].sort((a,b)=>a.date.localeCompare(b.date));
         if(allMonthJobs.length===0&&allMonthGcal.length===0)return null;
@@ -1831,6 +1868,9 @@ function TaxReport({jobs,payments,quotes}){
 function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomers,setQuotes,setPayments,onBack,onLogout,isDemoMode}){
   const[configText,setConfigText]=useLS('px_firebase_config','');
   const[showConfig,setShowConfig]=useState(false);
+  const[embedUrl,setEmbedUrl]=useLS('px_gcal_embed','');
+  const[embedSaved,setEmbedSaved]=useState(false);
+  const saveEmbed=()=>{setEmbedSaved(true);setTimeout(()=>setEmbedSaved(false),2000);};
 
   const exportAll=()=>{
     const blob=new Blob([JSON.stringify({v:3,exportedAt:new Date().toISOString(),jobs,customers,quotes,payments},null,2)],{type:'application/json'});
@@ -1869,6 +1909,19 @@ function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomer
              window.__db?'ข้อมูลบันทึกบน Cloud อัตโนมัติ รองรับหลายคน':'กรุณาตั้งค่า Firebase Config'}
           </div>
           {!isDemoMode&&<button className="px-btn px-btn-dark" style={{fontSize:7}} onClick={()=>setShowConfig(true)}>⚙ แก้ไข Firebase Config</button>}
+        </div>
+
+        {/* Google Calendar Embed */}
+        <div className="px-card" style={{marginBottom:12,padding:14,border:'3px solid #38A050',boxShadow:'4px 4px 0 #38A050'}}>
+          <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#38A050',marginBottom:4}}>📅 GOOGLE CALENDAR EMBED</div>
+          <div style={{fontSize:11,color:'#888',marginBottom:10,lineHeight:1.6}}>วางลิงก์ Embed จาก Google Calendar Settings เพื่อให้แสดงปฏิทินใน MAP tab</div>
+          <div style={{fontSize:10,color:'#555',marginBottom:8,lineHeight:1.8}}>วิธีได้ลิงก์: Google Calendar → ⚙ → Settings → เลือกปฏิทิน → "Integrate calendar" → คัดลอก URL จาก &lt;iframe src="…"&gt;</div>
+          <textarea value={embedUrl} onChange={e=>setEmbedUrl(e.target.value)} rows={3}
+            placeholder="https://calendar.google.com/calendar/embed?src=..."
+            style={{resize:'none',fontSize:11,fontFamily:'monospace',marginBottom:8}}/>
+          <button className="px-btn px-btn-red" onClick={saveEmbed} style={{fontSize:8}}>
+            {embedSaved?'✅ บันทึกแล้ว!':'💾 SAVE EMBED URL'}
+          </button>
         </div>
 
         {/* iPhone install */}
