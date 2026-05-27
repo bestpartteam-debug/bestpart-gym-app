@@ -64,8 +64,7 @@ html,body{
   height:100%;background:var(--bg);
   font-family:system-ui,-apple-system,sans-serif;
   color:var(--white);
-  max-width:430px;
-  margin:0 auto;
+  width:100%;
   overflow-x:hidden;
 }
 
@@ -219,8 +218,8 @@ input:focus,select:focus,textarea:focus{
 
 /* ── BOTTOM NAV ──────────────────────────── */
 .bottom-nav{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
-  width:100%;max-width:430px;
+  position:fixed;bottom:0;left:0;
+  width:100%;
   background:var(--bg3);
   border-top:3px solid var(--border);
   display:flex;justify-content:space-around;
@@ -267,13 +266,13 @@ input:focus,select:focus,textarea:focus{
 .modal-overlay{
   position:fixed;inset:0;background:rgba(0,0,0,.75);
   z-index:200;display:flex;align-items:flex-end;
-  max-width:430px;left:50%;transform:translateX(-50%);
+  width:100%;
 }
 .modal-sheet{
   background:var(--card);border:3px solid var(--border);
   border-bottom:none;border-radius:8px 8px 0 0;
   padding:20px 16px calc(24px + env(safe-area-inset-bottom));
-  width:100%;max-height:88vh;overflow-y:auto;color:var(--border);
+  width:100%;max-height:92vh;overflow-y:auto;color:var(--border);
 }
 .modal-title{
   font-family:'Press Start 2P',monospace;font-size:10px;
@@ -410,7 +409,7 @@ input:focus,select:focus,textarea:focus{
     theme_color:"#1a1c2c",
     orientation:"portrait",
     icons:[{
-      src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23CC0000'/%3E%3Cpath d='M0 100 A100 100 0 0 1 200 100' fill='%23F8F8F8'/%3E%3Crect x='0' y='88' width='200' height='24' fill='%23181018'/%3E%3Ccircle cx='100' cy='100' r='24' fill='%23F8F8F8' stroke='%23181018' stroke-width='8'/%3E%3C/svg%3E",
+      src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' shape-rendering='crispEdges'%3E%3Cdefs%3E%3CclipPath id='pb2'%3E%3Ccircle cx='100' cy='100' r='93'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx='100' cy='100' r='96' fill='%23181018'/%3E%3Crect x='7' y='7' width='186' height='87' fill='%23CC0000' clip-path='url(%23pb2)'/%3E%3Crect x='7' y='100' width='186' height='93' fill='%23F8F8F8' clip-path='url(%23pb2)'/%3E%3Crect x='7' y='87' width='186' height='26' fill='%23181018' clip-path='url(%23pb2)'/%3E%3Crect x='72' y='72' width='56' height='56' fill='%23181018'/%3E%3Crect x='78' y='78' width='44' height='44' fill='%23F8F8F8'/%3E%3Crect x='78' y='78' width='16' height='10' fill='rgba(255%2C255%2C255%2C.9)'/%3E%3C/svg%3E",
       sizes:"512x512",type:"image/svg+xml"
     }]
   };
@@ -432,7 +431,6 @@ const {useState,useEffect,useRef,useCallback,useMemo}=React;
 const POKE_TYPES={
   B2C:{color:'#F0A000', bg:'#FFFDE0', name:'บุคคล',  desc:'ไม่หักภาษี ณ ที่จ่าย', pokemon:'pikachu'},
   B2B:{color:'#F08030', bg:'#FFF0E0', name:'บริษัท', desc:'หักภาษี ณ ที่จ่าย 3%',  pokemon:'charmander'},
-  Gov:{color:'#6890F0', bg:'#E8F0FF', name:'ราชการ', desc:'หักภาษี ณ ที่จ่าย 3%',  pokemon:'bulbasaur'},
 };
 const JOB_TYPES=['Wedding','Pre-wedding','Corporate Event','Portrait','Product','Studio','Events','อื่นๆ'];
 const TH_M=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
@@ -667,14 +665,17 @@ function LoginScreen({onLogin,onDemo}){
         </div>
       </div>
 
-      <div className="pokeball-anim" style={{marginBottom:40}}>
-        <svg width="96" height="96" viewBox="0 0 200 200">
-          <circle cx="100" cy="100" r="96" fill="#CC0000" stroke="#181018" strokeWidth="8"/>
-          <path d="M4,100 A96,96,0,0,1,196,100" fill="#F8F8F8"/>
-          <rect x="4" y="88" width="192" height="24" fill="#181018"/>
-          <circle cx="100" cy="100" r="24" fill="#F8F8F8" stroke="#181018" strokeWidth="8"/>
-          <circle cx="100" cy="100" r="14" fill="#F8F8F8"/>
-          <circle cx="80" cy="70" r="8" fill="rgba(255,255,255,.4)"/>
+      <div className="pokeball-anim" style={{marginBottom:40,imageRendering:'pixelated'}}>
+        <svg width="96" height="96" viewBox="0 0 200 200" shapeRendering="crispEdges">
+          <defs><clipPath id="pb"><circle cx="100" cy="100" r="93"/></clipPath></defs>
+          <circle cx="100" cy="100" r="96" fill="#181018"/>
+          <rect x="7" y="7" width="186" height="87" fill="#CC0000" clipPath="url(#pb)"/>
+          <rect x="7" y="100" width="186" height="93" fill="#F8F8F8" clipPath="url(#pb)"/>
+          <rect x="7" y="87" width="186" height="26" fill="#181018" clipPath="url(#pb)"/>
+          <rect x="72" y="72" width="56" height="56" fill="#181018"/>
+          <rect x="78" y="78" width="44" height="44" fill="#F8F8F8"/>
+          <rect x="78" y="78" width="16" height="10" fill="rgba(255,255,255,.9)"/>
+          <rect x="78" y="88" width="8" height="6" fill="rgba(255,255,255,.5)"/>
         </svg>
       </div>
 
@@ -993,11 +994,6 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
               </button>
             ))}
           </div>
-          {/* Existing customer */}
-          <select value={form.customerId} onChange={e=>{const c=customers.find(x=>x.id===e.target.value);setForm(f=>({...f,customerId:e.target.value,customerName:c?.name||'',customerType:c?.type||f.customerType}));}} style={{marginBottom:0}}>
-            <option value="">— เลือกลูกค้าเดิม หรือพิมพ์ชื่อใหม่ด้านล่าง —</option>
-            {customers.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
           <div className="field-label">ชื่อลูกค้า *</div>
           <input value={form.customerName} onChange={e=>setForm(f=>({...f,customerName:e.target.value,customerId:''}))} placeholder="ชื่อลูกค้า"/>
           <div className="field-label">QUEST TYPE</div>
@@ -1197,7 +1193,7 @@ function QuoteForm({job,setQuotes,onClose,onView}){
   const pt=POKE_TYPES[job.customerType]||POKE_TYPES.B2C;
   const[items,setItems]=useState([{desc:'',amount:''}]);
   const[useVat,setUseVat]=useState(job.customerType==='B2B');
-  const[useWht,setUseWht]=useState(job.customerType==='B2B'||job.customerType==='Gov');
+  const[useWht,setUseWht]=useState(job.customerType==='B2B');
   const sub=items.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
   const vat=useVat?sub*VAT:0;
   const total=sub+vat;
@@ -1671,7 +1667,7 @@ function CustomersList({customers,setCustomers,jobs,onNav}){
           <input value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} placeholder="08x-xxx-xxxx"/>
           <div className="field-label">LINE ID</div>
           <input value={form.lineId} onChange={e=>setForm(f=>({...f,lineId:e.target.value}))} placeholder="@lineid"/>
-          {(form.type==='B2B'||form.type==='Gov')&&(
+          {(form.type==='B2B')&&(
             <><div className="field-label">เลขผู้เสียภาษี</div><input value={form.taxId} onChange={e=>setForm(f=>({...f,taxId:e.target.value}))} placeholder="13 หลัก"/></>
           )}
           <div className="field-label">ที่อยู่</div>
@@ -1773,7 +1769,7 @@ function TaxReport({jobs,payments,quotes}){
           <KpiCard label="📋 WHT" value={fc(tWht)} color="#F08030"/>
         </div>
         <div className="pill-row" style={{marginBottom:12}}>
-          {[['all','ALL'],['B2C','NORMAL'],['B2B','FIRE'],['Gov','WATER']].map(([k,l])=>(
+          {[['all','ALL'],['B2C','บุคคล'],['B2B','บริษัท']].map(([k,l])=>(
             <button key={k} className={`pill ${filter===k?'pill-active':'pill-inactive'}`} onClick={()=>setFilter(k)} style={{fontFamily:"'Press Start 2P',monospace",fontSize:7}}>{l}</button>
           ))}
         </div>
