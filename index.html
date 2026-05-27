@@ -202,7 +202,7 @@ input:focus,select:focus,textarea:focus{
 }
 .top-bar-title{
   flex:1;font-family:'Press Start 2P',monospace;
-  font-size:10px;color:var(--yellow);
+  font-size:13px;color:var(--yellow);
   text-shadow:2px 2px 0 var(--border);
   letter-spacing:.5px;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;
@@ -237,13 +237,13 @@ input:focus,select:focus,textarea:focus{
   display:flex;flex-direction:column;align-items:center;
   gap:3px;cursor:pointer;padding:4px 6px;
   color:var(--gray);
-  font-family:'Press Start 2P',monospace;font-size:6px;
+  font-family:'Press Start 2P',monospace;font-size:8px;
   letter-spacing:.3px;transition:color .15s;
   min-width:48px;
 }
 .nav-item.active{color:var(--yellow);}
 .nav-item.active .nav-icon{filter:drop-shadow(0 0 4px var(--yellow));}
-.nav-icon{font-size:18px;line-height:1;}
+.nav-icon{font-size:23px;line-height:1;}
 
 /* ── DIALOG BOX ──────────────────────────── */
 .dialog-box{
@@ -282,14 +282,14 @@ input:focus,select:focus,textarea:focus{
   width:100%;max-height:92vh;overflow-y:auto;color:var(--border);
 }
 .modal-title{
-  font-family:'Press Start 2P',monospace;font-size:10px;
+  font-family:'Press Start 2P',monospace;font-size:13px;
   color:var(--border);margin-bottom:16px;
   text-align:center;letter-spacing:.5px;
 }
 
 /* ── SECTION TITLE ───────────────────────── */
 .sec-title{
-  font-family:'Press Start 2P',monospace;font-size:8px;
+  font-family:'Press Start 2P',monospace;font-size:10px;
   color:var(--yellow);text-shadow:1px 1px 0 var(--border);
   letter-spacing:.5px;margin-bottom:10px;
 }
@@ -301,11 +301,11 @@ input:focus,select:focus,textarea:focus{
   padding:12px;
 }
 .kpi-label{
-  font-family:'Press Start 2P',monospace;font-size:6px;
+  font-family:'Press Start 2P',monospace;font-size:8px;
   color:var(--gray);margin-bottom:6px;letter-spacing:.3px;
 }
 .kpi-value{
-  font-family:'Press Start 2P',monospace;font-size:11px;
+  font-family:'Press Start 2P',monospace;font-size:14px;
   color:var(--yellow);text-shadow:1px 1px 0 rgba(0,0,0,.5);
 }
 .kpi-sub{font-size:11px;color:var(--gray);margin-top:3px;}
@@ -567,11 +567,14 @@ function TypeBadge({type}){
   </span>;
 }
 
-function TopBar({title,onBack,onAdd,addLabel,right}){
+function TopBar({title,titleTh,onBack,onAdd,addLabel,right}){
   return(
     <div className="top-bar">
       {onBack&&<button className="icon-btn" onClick={onBack}>←</button>}
-      <span className="top-bar-title">▶ {title}</span>
+      <div style={{flex:1,overflow:'hidden'}}>
+        <div className="top-bar-title" style={{flex:'unset'}}>▶ {title}</div>
+        {titleTh&&<div style={{fontFamily:'system-ui,sans-serif',fontSize:10,color:'#aaa',marginTop:1}}>{titleTh}</div>}
+      </div>
       {right}
       {onAdd&&(
         <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
@@ -600,10 +603,11 @@ function HpBar({paid,total,showLabel=true}){
   );
 }
 
-function KpiCard({label,value,sub,color}){
+function KpiCard({label,value,sub,color,thai}){
   return(
     <div className="kpi-card">
       <div className="kpi-label">{label}</div>
+      {thai&&<div style={{fontSize:9,color:'#aaa',fontFamily:'system-ui,sans-serif',marginTop:-2,marginBottom:4}}>{thai}</div>}
       <div className="kpi-value" style={color?{color}:{}}>{value}</div>
       {sub&&<div className="kpi-sub">{sub}</div>}
     </div>
@@ -783,10 +787,10 @@ function Dashboard({jobs,payments,user,onNav,onLogout}){
 
       {/* KPIs */}
       <div className="g2" style={{padding:'0 16px',gap:10,marginBottom:12}}>
-        <KpiCard label="⚔️ QUEST TOTAL" value={fc(jobs.reduce((s,j)=>s+j.totalAmount,0))} sub={`${jobs.length} quests`}/>
-        <KpiCard label="💰 GOLD RECV" value={fc(recv)} sub="รับแล้ว" color="#00C830"/>
-        <KpiCard label="❗ DEBT" value={fc(debt)} sub={`${active.filter(j=>{const p=payments.filter(x=>x.jobId===j.id).reduce((a,x)=>a+x.amount,0);return p<j.totalAmount;}).length} quests`} color={debt>0?'#E82020':'#00C830'}/>
-        <KpiCard label="📋 ACTIVE" value={active.length} sub="ongoing quests" color="#FFD700"/>
+        <KpiCard label="⚔️ QUEST TOTAL" value={fc(jobs.reduce((s,j)=>s+j.totalAmount,0))} sub={`${jobs.length} quests`} thai="ยอดรวมคิว"/>
+        <KpiCard label="💰 GOLD RECV" value={fc(recv)} sub="รับแล้ว" color="#00C830" thai="ยอดรับเงิน"/>
+        <KpiCard label="❗ DEBT" value={fc(debt)} sub={`${active.filter(j=>{const p=payments.filter(x=>x.jobId===j.id).reduce((a,x)=>a+x.amount,0);return p<j.totalAmount;}).length} quests`} color={debt>0?'#E82020':'#00C830'} thai="ค้างชำระ"/>
+        <KpiCard label="📋 ACTIVE" value={active.length} sub="ongoing quests" color="#FFD700" thai="งานดำเนินอยู่"/>
       </div>
 
       {/* Active jobs */}
@@ -900,7 +904,7 @@ function JobsList({jobs,payments,setJobs,customers,accessToken,onNav}){
 
   return(
     <div className="screen">
-      <TopBar title="QUEST BOARD" onAdd={()=>setShowAdd(true)} addLabel="ลงคิวงาน"/>
+      <TopBar title="QUEST BOARD" titleTh="บอร์ดคิวงาน" onAdd={()=>setShowAdd(true)} addLabel="ลงคิวงาน"/>
       <div style={{padding:'0 16px'}}>
         <input placeholder="🔍 ค้นหา ชื่อ · ประเภทงาน" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:10}}/>
         <div className="pill-row" style={{marginBottom:12}}>
@@ -1337,7 +1341,7 @@ function QuoteDetail({quote,onBack}){
 function QuotesList({quotes,onNav}){
   return(
     <div className="screen">
-      <TopBar title="ITEM SHOP"/>
+      <TopBar title="ITEM SHOP" titleTh="รายการสินค้า"/>
       <div style={{padding:'0 16px'}}>
         {quotes.length===0&&(
           <div className="dialog-box" style={{textAlign:'center',margin:'16px 0'}}>
@@ -1468,7 +1472,10 @@ function CalendarView({jobs,setJobs,accessToken,onNav}){
   return(
     <div className="screen">
       <div style={{padding:'14px 16px 8px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <span className="sec-title" style={{margin:0}}>📅 BATTLE MAP</span>
+        <div>
+          <span className="sec-title" style={{margin:0}}>📅 BATTLE MAP</span>
+          <div style={{fontSize:10,color:'#aaa',marginTop:2,fontFamily:'system-ui,sans-serif'}}>ตารางงาน</div>
+        </div>
         <div className="row" style={{gap:6}}>
           {/* Toggle Google Calendar */}
           {accessToken&&(
@@ -1628,7 +1635,7 @@ function CustomersList({customers,setCustomers,jobs,onNav}){
 
   return(
     <div className="screen">
-      <TopBar title={`TRAINERS`} onAdd={()=>setShowAdd(true)}/>
+      <TopBar title="TRAINERS" titleTh="รายชื่อทีมงาน" onAdd={()=>setShowAdd(true)}/>
       <div style={{padding:'0 16px'}}>
         <div style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:'#888',marginBottom:8}}>{customers.length} TRAINERS REGISTERED</div>
         <input placeholder="🔍 ค้นหา ชื่อ · เบอร์ · LINE" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:12}}/>
@@ -1759,7 +1766,10 @@ function TaxReport({jobs,payments,quotes}){
   return(
     <div className="screen">
       <div style={{padding:'14px 16px 8px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <span className="sec-title" style={{margin:0}}>📊 GUILD HALL</span>
+        <div>
+          <span className="sec-title" style={{margin:0}}>📊 GUILD HALL</span>
+          <div style={{fontSize:10,color:'#aaa',marginTop:2,fontFamily:'system-ui,sans-serif'}}>บัญชีรายรับ</div>
+        </div>
         <div className="row" style={{gap:6}}>
           <button onClick={()=>setYr(y=>y-1)} className="icon-btn" style={{width:28,height:28,fontSize:14}}>‹</button>
           <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:8,color:'#FFD700',minWidth:60,textAlign:'center'}}>{yr+543}</span>
@@ -1829,7 +1839,7 @@ function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomer
 
   return(
     <div className="screen">
-      <TopBar title="SETTINGS" onBack={onBack}/>
+      <TopBar title="SETTINGS" titleTh="ตั้งค่า" onBack={onBack}/>
       <div style={{padding:'0 16px'}}>
 
         {/* Profile */}
@@ -1906,21 +1916,22 @@ function SettingsScreen({user,jobs,customers,quotes,payments,setJobs,setCustomer
    ══════════════════════════════════════════ */
 const MAIN=['dashboard','jobs','quotes','calendar','customers','tax'];
 const NAV_ITEMS=[
-  {id:'dashboard',lb:'HOME',   renderIcon:()=><span style={{fontSize:20}}>🏠</span>},
-  {id:'jobs',     lb:'QUEST',  renderIcon:()=><span style={{fontSize:20}}>⚔️</span>},
-  {id:'calendar', lb:'MAP',    renderIcon:()=><span style={{fontSize:20}}>🗺️</span>},
-  {id:'customers',lb:'TRAINER',renderIcon:()=><span style={{fontSize:20}}>👤</span>},
-  {id:'quotes',   lb:'SHOP',   renderIcon:()=><span style={{fontSize:20}}>🛍️</span>},
-  {id:'tax',      lb:'GUILD',  renderIcon:()=><span style={{fontSize:20}}>🏛️</span>},
+  {id:'dashboard',lb:'HOME',   th:'หน้าหลัก', renderIcon:()=><span style={{fontSize:26}}>🏠</span>},
+  {id:'jobs',     lb:'QUEST',  th:'คิวงาน',   renderIcon:()=><span style={{fontSize:26}}>⚔️</span>},
+  {id:'calendar', lb:'MAP',    th:'แผนที่',   renderIcon:()=><span style={{fontSize:26}}>🗺️</span>},
+  {id:'customers',lb:'TRAINER',th:'ทีมงาน',   renderIcon:()=><span style={{fontSize:26}}>👤</span>},
+  {id:'quotes',   lb:'SHOP',   th:'ร้านค้า',  renderIcon:()=><span style={{fontSize:26}}>🛍️</span>},
+  {id:'tax',      lb:'GUILD',  th:'กิลด์',    renderIcon:()=><span style={{fontSize:26}}>🏛️</span>},
 ];
 function BottomNav({screen,onNav}){
   if(!MAIN.includes(screen))return null;
   return(
     <div className="bottom-nav">
-      {NAV_ITEMS.map(({id,lb,renderIcon})=>(
+      {NAV_ITEMS.map(({id,lb,th,renderIcon})=>(
         <div key={id} className={`nav-item${screen===id?' active':''}`} onClick={()=>onNav(id)}>
           <span className="nav-icon">{renderIcon()}</span>
           <span>{lb}</span>
+          {th&&<span style={{fontFamily:'system-ui,sans-serif',fontSize:8,opacity:.75,marginTop:-1}}>{th}</span>}
         </div>
       ))}
     </div>
